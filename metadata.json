@@ -1,0 +1,6 @@
+{
+  "name": "Lunar-Muhurta Synergy",
+  "description": "Calculates the cosmic synergy between current Moon Phase and Vedic Muhurta based on your local time and location.",
+  "requestFramePermissions": ["geolocation"],
+  "majorCapabilities": []
+}
