@@ -12,9 +12,11 @@ export interface Muhurta {
   cumulativePercentage: number;
   description: string;
   focus: string;
+  startTime: Date;
+  endTime: Date;
 }
 
-export const MUHURTAS: Omit<Muhurta, 'cumulativePercentage'>[] = [
+export const MUHURTAS: Omit<Muhurta, 'cumulativePercentage' | 'startTime' | 'endTime'>[] = [
   { id: 1, name: 'Rudra', nature: 'Inauspicious', description: 'Associated with transformation through destruction.', focus: 'Cleansing and ending bad habits.' },
   { id: 2, name: 'Ahi', nature: 'Inauspicious', description: 'Symbolized by the serpent, representing hidden obstacles.', focus: 'Caution and self-protection.' },
   { id: 3, name: 'Mitra', nature: 'Auspicious', description: 'Ruled by the god of friendship and harmony.', focus: 'Networking, social gatherings, and treaties.' },
@@ -48,24 +50,27 @@ export const MUHURTAS: Omit<Muhurta, 'cumulativePercentage'>[] = [
 ];
 
 export function getCurrentMuhurta(date: Date = new Date(), sunrise: Date = new Date()): Muhurta {
-  // Approximate sunrise to 6 AM if not provided correctly
-  const s = new Date(date);
-  s.setHours(6, 0, 0, 0); 
+  // Use the provided sunrise as the start of the 24h cycle
+  let s = new Date(sunrise);
   
-  // Actually, let's just use the current time relative to the 24h cycle
-  // starting at sunrise (6 AM for simplicity unless we fetch it)
-  let diffMs = date.getTime() - s.getTime();
-  if (diffMs < 0) {
-    // Before 6 AM, it's the late muhurtas of the previous day
-    diffMs += 24 * 60 * 60 * 1000;
+  // If the date is before this sunrise (e.g. early morning), we need yesterday's sunrise
+  if (date < s) {
+    s = new Date(s.getTime() - 24 * 60 * 60 * 1000);
   }
 
+  const diffMs = date.getTime() - s.getTime();
   const minsSinceSunrise = diffMs / (60 * 1000);
   const muhurtaIndex = Math.floor(minsSinceSunrise / 48) % 30;
   
   const m = MUHURTAS[muhurtaIndex];
+  
+  const startTime = new Date(s.getTime() + (muhurtaIndex * 48 * 60 * 1000));
+  const endTime = new Date(startTime.getTime() + (48 * 60 * 1000));
+
   return {
     ...m,
-    cumulativePercentage: ((muhurtaIndex + 1) * 3.33333333)
+    cumulativePercentage: ((muhurtaIndex + 1) * 3.33333333),
+    startTime,
+    endTime
   };
 }

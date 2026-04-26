@@ -209,7 +209,7 @@ export default function App() {
           </div>
         </header>
         
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-10">
+        <div className="grid grid-cols-2 md:grid-cols-5 gap-4 mb-10">
           <div className="bg-white/5 border border-white/5 p-4 rounded-xl backdrop-blur-sm">
             <div className="text-[10px] text-gold uppercase tracking-widest mb-1 flex items-center gap-2">
               <Sun className="w-3 h-3" /> Sunrise
@@ -233,6 +233,16 @@ export default function App() {
               <div className="w-3 h-3 border-2 border-white/20 border-b-gold rounded-full" /> Moonset
             </div>
             <div className="text-xl font-light">{moonData?.moonset ? moonData.moonset.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : '--:--'}</div>
+          </div>
+          <div className="bg-white/5 border border-gold/10 p-4 rounded-xl backdrop-blur-sm relative overflow-hidden group">
+            <div className="absolute top-0 right-0 p-2 opacity-5 group-hover:opacity-10 transition-opacity">
+              <RefreshCw className="w-8 h-8 text-gold" />
+            </div>
+            <div className="text-[10px] text-gold uppercase tracking-widest mb-1 flex items-center gap-2">
+              Peak Lunar
+            </div>
+            <div className="text-xl font-light text-gold">{((moonData?.peakIllumination ?? 0) * 100).toFixed(1)}%</div>
+            <div className="text-[9px] text-dim font-mono uppercase mt-1">at {moonData?.peakIlluminationTime.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</div>
           </div>
         </div>
 
@@ -320,6 +330,22 @@ export default function App() {
                               {currentMuhurta.nature}
                             </span>
                           </div>
+                          
+                          <div className="flex items-center gap-4 py-1 border-y border-white/5">
+                            <div>
+                              <span className="text-[8px] text-dim uppercase block">Starts</span>
+                              <span className="text-xs font-mono">{currentMuhurta.startTime.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>
+                            </div>
+                            <div className="w-full h-[1px] bg-white/5 relative">
+                              <div className="absolute top-1/2 left-0 w-1 h-1 bg-gold rounded-full -translate-y-1/2" />
+                              <div className="absolute top-1/2 right-0 w-1 h-1 bg-white/20 rounded-full -translate-y-1/2" />
+                            </div>
+                            <div className="text-right">
+                              <span className="text-[8px] text-dim uppercase block">Ends</span>
+                              <span className="text-xs font-mono">{currentMuhurta.endTime.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>
+                            </div>
+                          </div>
+
                           <p className="text-white/60 text-xs italic leading-snug">
                             {currentMuhurta.description}
                           </p>
@@ -352,10 +378,20 @@ export default function App() {
               {MUHURTAS.map((m) => {
                 const isActive = currentMuhurta?.id === m.id;
                 const perc = ((m.id) * 3.33);
+                
+                // Calculate time range for this specific muhurta
+                let timeStr = "";
+                if (sunrise) {
+                  const s = new Date(sunrise);
+                  const start = new Date(s.getTime() + ((m.id - 1) * 48 * 60 * 1000));
+                  const end = new Date(start.getTime() + (48 * 60 * 1000));
+                  timeStr = `\nTime: ${start.toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'})} - ${end.toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'})}`;
+                }
+
                 return (
                   <div 
                     key={m.id}
-                    title={`${m.nature}: ${m.description}\nFocus: ${m.focus}`}
+                    title={`${m.nature}: ${m.description}\nFocus: ${m.focus}${timeStr}`}
                     className={`flex justify-between py-1.5 px-3 text-[10px] transition-all duration-300 rounded cursor-help group ${
                       isActive ? 'bg-gold/10 text-gold font-bold opacity-100 border-l-2 border-gold shadow-[inset_0_0_10px_rgba(212,175,55,0.05)]' : 'opacity-40 text-dim hover:opacity-100 hover:bg-white/5'
                     }`}
@@ -375,9 +411,9 @@ export default function App() {
 
         <footer className="mt-12 pt-8 border-t border-white/10 text-center text-[10px] text-dim tracking-[0.1em] uppercase font-light">
           <div className="flex flex-wrap justify-center gap-x-6 gap-y-2 opacity-60">
-            <span>&alpha; = 0.50</span>
+            <span>Free Will Impact Analysis</span>
             <span className="opacity-20">|</span>
-            <span>Synergy = (Phase &bull; &alpha;) + (Muhurta &bull; (1-&alpha;))</span>
+            <span>Synergy = (Illumination + Muhurta) / 2</span>
             <span className="opacity-20">|</span>
             <span>Vedic Calibration Active</span>
             <span className="opacity-20">|</span>

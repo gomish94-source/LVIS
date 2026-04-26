@@ -14,6 +14,8 @@ export interface MoonData {
   isWaxing: boolean;
   moonrise?: Date;
   moonset?: Date;
+  peakIllumination: number;
+  peakIlluminationTime: Date;
 }
 
 export function getMoonData(date: Date = new Date(), lat?: number, lng?: number): MoonData {
@@ -46,5 +48,24 @@ export function getMoonData(date: Date = new Date(), lat?: number, lng?: number)
     moonset = times.set;
   }
 
-  return { illumination, phaseName, isWaxing, moonrise, moonset };
+  // Calculate Peak Illumination for today
+  const startOfDay = new Date(date);
+  startOfDay.setHours(0, 0, 0, 0);
+  let peakIllumination = 0;
+  let peakIlluminationTime = startOfDay;
+
+  for (let h = 0; h <= 24; h++) {
+    const sampleDate = new Date(startOfDay.getTime() + h * 60 * 60 * 1000);
+    const sampleDaysSinceNewMoon = (sampleDate.getTime() - KNOWN_NEW_MOON) / msPerDay;
+    const sampleCyclePosition = (sampleDaysSinceNewMoon % LUNAR_MONTH) / LUNAR_MONTH;
+    const samplePhaseAngle = sampleCyclePosition * 2 * Math.PI;
+    const sampleIllumination = (1 - Math.cos(samplePhaseAngle)) / 2;
+    
+    if (sampleIllumination > peakIllumination) {
+      peakIllumination = sampleIllumination;
+      peakIlluminationTime = sampleDate;
+    }
+  }
+
+  return { illumination, phaseName, isWaxing, moonrise, moonset, peakIllumination, peakIlluminationTime };
 }
