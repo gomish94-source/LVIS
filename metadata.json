@@ -1,6 +1,6 @@
 {
   "name": "Lunar-Muhurta Synergy",
-  "description": "Calculates the cosmic synergy between current Moon Phase and Vedic Muhurta based on your local time and location.",
+  "description": "Calculates cosmic synergy between Lunar phases and Vedic Muhurta. Real-time analysis with precise rise/set times based on GPS tracking.",
   "requestFramePermissions": ["geolocation"],
   "majorCapabilities": []
 }

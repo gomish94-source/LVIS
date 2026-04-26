@@ -9,23 +9,27 @@ export default function App() {
   const [error, setError] = useState<string | null>(null);
   const [location, setLocation] = useState<{ lat: number; lng: number } | null>(null);
   const [sunrise, setSunrise] = useState<Date | null>(null);
+  const [sunset, setSunset] = useState<Date | null>(null);
   const [moonData, setMoonData] = useState<MoonData | null>(null);
   const [currentMuhurta, setCurrentMuhurta] = useState<Muhurta | null>(null);
   const [synergy, setSynergy] = useState<{ status: string; percentage: number; situation: string; advice: string } | null>(null);
 
-  const fetchSunrise = async (lat: number, lng: number) => {
+  const fetchAstroData = async (lat: number, lng: number) => {
     try {
       const response = await fetch(`https://api.sunrise-sunset.org/json?lat=${lat}&lng=${lng}&formatted=0`);
       const data = await response.json();
       if (data.status === 'OK') {
-        return new Date(data.results.sunrise);
+        return {
+          sunrise: new Date(data.results.sunrise),
+          sunset: new Date(data.results.sunset)
+        };
       }
     } catch (e) {
-      console.error('Failed to fetch sunrise', e);
+      console.error('Failed to fetch sunrise/sunset', e);
     }
-    const defaultSunrise = new Date();
-    defaultSunrise.setHours(6, 0, 0, 0);
-    return defaultSunrise;
+    const defSr = new Date(); defSr.setHours(6, 0, 0, 0);
+    const defSs = new Date(); defSs.setHours(18, 0, 0, 0);
+    return { sunrise: defSr, sunset: defSs };
   };
 
   const calculateAll = async () => {
@@ -34,15 +38,17 @@ export default function App() {
       const now = new Date();
       
       // Moon Data
-      const md = getMoonData(now);
+      const md = getMoonData(now, location?.lat, location?.lng);
       setMoonData(md);
 
       // Sunrise/Muhurta base
       let sr = sunrise;
-      if (location && !sr) {
+      if (location && (!sr || !sunset)) {
         try {
-          sr = await fetchSunrise(location.lat, location.lng);
+          const astro = await fetchAstroData(location.lat, location.lng);
+          sr = astro.sunrise;
           setSunrise(sr);
+          setSunset(astro.sunset);
         } catch (fetchErr) {
           console.warn("Sunrise fetch failed", fetchErr);
         }
@@ -202,11 +208,39 @@ export default function App() {
              {error && <span className="text-[9px] text-red-400 uppercase tracking-tighter italic">{error}</span>}
           </div>
         </header>
+        
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-10">
+          <div className="bg-white/5 border border-white/5 p-4 rounded-xl backdrop-blur-sm">
+            <div className="text-[10px] text-gold uppercase tracking-widest mb-1 flex items-center gap-2">
+              <Sun className="w-3 h-3" /> Sunrise
+            </div>
+            <div className="text-xl font-light">{sunrise ? sunrise.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : '--:--'}</div>
+          </div>
+          <div className="bg-white/5 border border-white/5 p-4 rounded-xl backdrop-blur-sm">
+            <div className="text-[10px] text-gold uppercase tracking-widest mb-1 flex items-center gap-2">
+              <div className="w-3 h-3 border-2 border-white/20 border-t-gold rounded-full" /> Sunset
+            </div>
+            <div className="text-xl font-light">{sunset ? sunset.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : '--:--'}</div>
+          </div>
+          <div className="bg-white/5 border border-white/5 p-4 rounded-xl backdrop-blur-sm">
+            <div className="text-[10px] text-gold uppercase tracking-widest mb-1 flex items-center gap-2">
+              <Moon className="w-3 h-3" /> Moonrise
+            </div>
+            <div className="text-xl font-light">{moonData?.moonrise ? moonData.moonrise.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : '--:--'}</div>
+          </div>
+          <div className="bg-white/5 border border-white/5 p-4 rounded-xl backdrop-blur-sm">
+            <div className="text-[10px] text-gold uppercase tracking-widest mb-1 flex items-center gap-2">
+              <div className="w-3 h-3 border-2 border-white/20 border-b-gold rounded-full" /> Moonset
+            </div>
+            <div className="text-xl font-light">{moonData?.moonset ? moonData.moonset.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : '--:--'}</div>
+          </div>
+        </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-[280px_1fr_280px] gap-12 flex-1">
           {/* Left Sidebar: Lunar Phases */}
           <aside className="bg-white/[0.03] border border-white/5 rounded-sm p-6 flex flex-col h-full max-h-[600px]">
             <h2 className="text-[10px] uppercase tracking-[0.3em] text-dim mb-6 border-b border-white/5 pb-3">Lunar Phases</h2>
+            
             <div className="space-y-1 overflow-y-auto pr-2 custom-scrollbar">
               {[
                 { name: "New Moon", range: "0%" },
