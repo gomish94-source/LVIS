@@ -268,16 +268,33 @@ export default function App() {
                   }`}>
                     {synergy?.status ?? "Initializing"} <span className="text-3xl not-italic font-sans font-light text-white/40">with {(synergy?.percentage ?? 0).toFixed(2)}%</span>
                   </h2>
-                  
-                  <div className="max-w-xl mx-auto mt-8 space-y-6">
+                                    <div className="max-w-xl mx-auto mt-8 space-y-6">
                     <div className="bg-white/5 border border-white/10 rounded-2xl p-6 text-left backdrop-blur-md">
                       <div className="text-[10px] text-dim uppercase tracking-widest mb-3 flex items-center gap-2">
                         <Info className="w-3 h-3 text-gold" />
-                        Situation Analysis
+                        Cosmic Analysis
                       </div>
-                      <p className="text-white/80 text-sm leading-relaxed font-light">
+                      <p className="text-white/80 text-sm leading-relaxed font-light mb-4">
                         {synergy?.situation}
                       </p>
+                      
+                      {currentMuhurta && (
+                        <div className="pt-4 border-t border-white/5 space-y-3">
+                          <div className="flex items-center justify-between">
+                            <span className="text-[10px] text-gold uppercase tracking-[0.2em]">{currentMuhurta.name} Details</span>
+                            <span className={`text-[9px] px-2 py-0.5 rounded-full border ${currentMuhurta.nature.includes('Inauspicious') ? 'border-red-500/30 text-red-400' : 'border-emerald-500/30 text-emerald-400'}`}>
+                              {currentMuhurta.nature}
+                            </span>
+                          </div>
+                          <p className="text-white/60 text-xs italic leading-snug">
+                            {currentMuhurta.description}
+                          </p>
+                          <div className="bg-white/5 p-3 rounded-xl">
+                            <span className="text-[9px] text-dim uppercase block mb-1">Primary Focus</span>
+                            <p className="text-white/90 text-xs">{currentMuhurta.focus}</p>
+                          </div>
+                        </div>
+                      )}
                     </div>
 
                     <div className="bg-gold/5 border border-gold/10 rounded-2xl p-6 text-left backdrop-blur-md">
@@ -304,15 +321,17 @@ export default function App() {
                 return (
                   <div 
                     key={m.id}
-                    className={`flex justify-between py-1.5 px-3 text-[10px] transition-all duration-300 rounded ${
-                      isActive ? 'bg-gold/10 text-gold font-bold opacity-100 border-l-2 border-gold shadow-[inset_0_0_10px_rgba(212,175,55,0.05)]' : 'opacity-40 text-dim'
+                    title={`${m.nature}: ${m.description}\nFocus: ${m.focus}`}
+                    className={`flex justify-between py-1.5 px-3 text-[10px] transition-all duration-300 rounded cursor-help group ${
+                      isActive ? 'bg-gold/10 text-gold font-bold opacity-100 border-l-2 border-gold shadow-[inset_0_0_10px_rgba(212,175,55,0.05)]' : 'opacity-40 text-dim hover:opacity-100 hover:bg-white/5'
                     }`}
                   >
                     <span className="flex items-center gap-2">
+                       <span className={`w-1 h-1 rounded-full ${isActive ? 'bg-gold animate-pulse' : 'bg-transparent'}`} />
                        <span className="opacity-30">{m.id.toString().padStart(2, '0')}</span>
                        {m.name}
                     </span>
-                    <span className="font-mono">{perc.toFixed(2)}%</span>
+                    <span className="font-mono group-hover:text-gold transition-colors">{perc.toFixed(2)}%</span>
                   </div>
                 );
               })}
