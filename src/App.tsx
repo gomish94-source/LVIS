@@ -209,7 +209,7 @@ export default function App() {
           </div>
         </header>
         
-        <div className="grid grid-cols-2 md:grid-cols-5 gap-4 mb-10">
+        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4 mb-10">
           <div className="bg-white/5 border border-white/5 p-4 rounded-xl backdrop-blur-sm">
             <div className="text-[10px] text-gold uppercase tracking-widest mb-1 flex items-center gap-2">
               <Sun className="w-3 h-3" /> Sunrise
@@ -234,7 +234,14 @@ export default function App() {
             </div>
             <div className="text-xl font-light">{moonData?.moonset ? moonData.moonset.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : '--:--'}</div>
           </div>
-          <div className="bg-white/5 border border-gold/10 p-4 rounded-xl backdrop-blur-sm relative overflow-hidden group">
+          <div className="bg-white/5 border border-white/5 p-4 rounded-xl backdrop-blur-sm shadow-[0_4px_20px_-10px_rgba(0,0,0,0.5)]">
+            <div className="text-[10px] text-gold uppercase tracking-widest mb-1 flex items-center gap-2">
+              <Moon className="w-3 h-3 text-gold/60" /> Transit
+            </div>
+            <div className="text-xl font-light">{moonData?.moonTransit ? moonData.moonTransit.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : '--:--'}</div>
+            <div className="text-[8px] text-dim font-mono uppercase mt-1">High Point</div>
+          </div>
+          <div className="bg-white/5 border border-gold/10 p-4 rounded-xl backdrop-blur-sm relative overflow-hidden group shadow-[0_4px_20px_-10px_rgba(212,175,55,0.1)]">
             <div className="absolute top-0 right-0 p-2 opacity-5 group-hover:opacity-10 transition-opacity">
               <RefreshCw className="w-8 h-8 text-gold" />
             </div>

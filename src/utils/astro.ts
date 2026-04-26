@@ -14,6 +14,7 @@ export interface MoonData {
   isWaxing: boolean;
   moonrise?: Date;
   moonset?: Date;
+  moonTransit?: Date;
   peakIllumination: number;
   peakIlluminationTime: Date;
 }
@@ -41,11 +42,28 @@ export function getMoonData(date: Date = new Date(), lat?: number, lng?: number)
   else if (cyclePosition < 0.97) phaseName = "Waning Crescent";
   else phaseName = "New Moon";
 
-  let moonrise, moonset;
+  let moonrise, moonset, moonTransit;
   if (lat !== undefined && lng !== undefined) {
     const times = SunCalc.getMoonTimes(date, lat, lng);
     moonrise = times.rise;
     moonset = times.set;
+    
+    // Calculate Moon Transit by finding maximum altitude
+    const start = new Date(date);
+    start.setHours(0, 0, 0, 0);
+    let maxAlt = -100;
+    let transitTime = start;
+    
+    // Sample every 15 minutes for accurate transit
+    for (let i = 0; i < 24 * 4; i++) {
+      const sample = new Date(start.getTime() + i * 15 * 60 * 1000);
+      const pos = SunCalc.getMoonPosition(sample, lat, lng);
+      if (pos.altitude > maxAlt) {
+        maxAlt = pos.altitude;
+        transitTime = sample;
+      }
+    }
+    moonTransit = transitTime;
   }
 
   // Calculate Peak Illumination for today
@@ -67,5 +85,5 @@ export function getMoonData(date: Date = new Date(), lat?: number, lng?: number)
     }
   }
 
-  return { illumination, phaseName, isWaxing, moonrise, moonset, peakIllumination, peakIlluminationTime };
+  return { illumination, phaseName, isWaxing, moonrise, moonset, moonTransit, peakIllumination, peakIlluminationTime };
 }
