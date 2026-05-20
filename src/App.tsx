@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
-import { Moon, Sun, MapPin, Loader2, Info, RefreshCw } from 'lucide-react';
-import { getMoonData, MoonData } from './utils/astro';
+import { Moon, Sun, MapPin, Loader2, Info, RefreshCw, Compass } from 'lucide-react';
+import { getMoonData, MoonData, getZenithConstellation, ConstellationDetails, getTrueZenithConstellation, TrueZenithConstellationDetails } from './utils/astro';
 import { getCurrentMuhurta, Muhurta, MUHURTAS } from './utils/vedic';
 
 export default function App() {
@@ -13,6 +13,14 @@ export default function App() {
   const [moonData, setMoonData] = useState<MoonData | null>(null);
   const [currentMuhurta, setCurrentMuhurta] = useState<Muhurta | null>(null);
   const [synergy, setSynergy] = useState<{ status: string; percentage: number; situation: string; advice: string } | null>(null);
+
+  const [zenithPresent, setZenithPresent] = useState<{ constellation: ConstellationDetails; lst: number; startTime: Date; endTime: Date } | null>(null);
+  const [zenithPast, setZenithPast] = useState<{ constellation: ConstellationDetails; lst: number; startTime: Date; endTime: Date } | null>(null);
+  const [zenithUpcoming, setZenithUpcoming] = useState<{ constellation: ConstellationDetails; lst: number; startTime: Date; endTime: Date } | null>(null);
+
+  const [trueZenithPresent, setTrueZenithPresent] = useState<{ constellation: TrueZenithConstellationDetails; lst: number; startTime: Date; endTime: Date } | null>(null);
+  const [trueZenithPast, setTrueZenithPast] = useState<{ constellation: TrueZenithConstellationDetails; lst: number; startTime: Date; endTime: Date } | null>(null);
+  const [trueZenithUpcoming, setTrueZenithUpcoming] = useState<{ constellation: TrueZenithConstellationDetails; lst: number; startTime: Date; endTime: Date } | null>(null);
 
   const fetchAstroData = async (lat: number, lng: number) => {
     try {
@@ -93,6 +101,32 @@ export default function App() {
       }
 
       setSynergy({ status, percentage: synergyValue, situation, advice });
+
+      // Calculate Zenith Constellations (Past, Present, Upcoming)
+      const lng = location?.lng ?? 85.42;
+      const lat = location?.lat ?? 25.31;
+
+      const presZenith = getZenithConstellation(now, lng);
+      setZenithPresent(presZenith);
+
+      const pastTime = new Date(now.getTime() - 2 * 60 * 60 * 1000);
+      const pastZenith = getZenithConstellation(pastTime, lng);
+      setZenithPast(pastZenith);
+
+      const upcomingTime = new Date(now.getTime() + 2 * 60 * 60 * 1000);
+      const upcomingZenith = getZenithConstellation(upcomingTime, lng);
+      setZenithUpcoming(upcomingZenith);
+
+      // True Astronomical Zenith Constellations (Overhead physically based on Latitude)
+      const truePresZenith = getTrueZenithConstellation(now, lat, lng);
+      setTrueZenithPresent(truePresZenith);
+
+      const truePastZenith = getTrueZenithConstellation(pastTime, lat, lng);
+      setTrueZenithPast(truePastZenith);
+
+      const trueUpcomingZenith = getTrueZenithConstellation(upcomingTime, lat, lng);
+      setTrueZenithUpcoming(trueUpcomingZenith);
+
     } catch (err) {
       console.error("Calculate synergy error", err);
       setError("Sync Error: Using basic mode.");
@@ -415,6 +449,372 @@ export default function App() {
             </div>
           </aside>
         </div>
+
+        {/* Zenith Transit Chronology Section */}
+        {zenithPresent && trueZenithPresent && (
+          <div className="mt-16 pt-12 border-t border-white/10">
+            <div className="flex flex-col xl:flex-row xl:items-center justify-between gap-6 mb-8">
+              <div>
+                <span className="text-[10px] text-gold uppercase tracking-[0.3em] font-medium flex items-center gap-2">
+                  <Compass className="w-3.5 h-3.5" /> Space-Time Gateways
+                </span>
+                <h2 className="text-xl font-light uppercase tracking-wide mt-1 text-white flex items-center gap-2">
+                  <span>Zenith Star alignment</span>
+                  <span className="text-xs text-gold font-mono bg-gold/10 px-2.5 py-0.5 rounded-full border border-gold/25 text-transform-none">
+                    #truezenithvsecliptic
+                  </span>
+                </h2>
+                <p className="text-xs text-dim mt-1">
+                  Compare the literal overhead astronomical stars at your latitude versus the traditional Zodiac meridian projection.
+                </p>
+              </div>
+
+              {/* Toggle controls with LST indicator */}
+              <div className="flex flex-wrap items-center gap-4">
+                <div className="bg-white/[0.03] border border-white/5 p-1 rounded-xl flex">
+                  <button
+                    onClick={() => {
+                      // Toggle Zenith Mode
+                      const btn = document.getElementById('zenith-btn-true');
+                      if (btn) btn.click();
+                    }}
+                    id="zenith-toggle-true"
+                    type="button"
+                    className="hidden"
+                  />
+                  <button
+                    onClick={() => {
+                      const btn = document.getElementById('zenith-btn-ecliptic');
+                      if (btn) btn.click();
+                    }}
+                    id="zenith-toggle-ecliptic"
+                    type="button"
+                    className="hidden"
+                  />
+                  {/* Visual buttons using simple React state */}
+                  <button
+                    onClick={() => {
+                      const element = document.getElementById('zenith-mode-store');
+                      if (element) {
+                        element.setAttribute('data-mode', 'true');
+                        element.click();
+                      }
+                    }}
+                    className="px-4 py-2 rounded-lg text-[10px] uppercase font-mono tracking-wider transition-all duration-300 pointer-events-auto"
+                    style={{
+                      backgroundColor: 'rgba(212, 175, 55, 0.1)',
+                      color: '#d4af37',
+                      border: '1px solid rgba(212, 175, 55, 0.2)'
+                    }}
+                    id="true-zenith-btn-ui"
+                  >
+                    True Zenith (Physical Stars)
+                  </button>
+                  <button
+                    onClick={() => {
+                      const element = document.getElementById('zenith-mode-store');
+                      if (element) {
+                        element.setAttribute('data-mode', 'ecliptic');
+                        element.click();
+                      }
+                    }}
+                    className="px-4 py-2 rounded-lg text-[10px] uppercase font-mono tracking-wider transition-all duration-300 opacity-55 hover:opacity-100"
+                    id="ecliptic-btn-ui"
+                  >
+                    Ecliptic Meridian (Zodiac)
+                  </button>
+                </div>
+                
+                {/* Hidden state machine elements to bridge state cleanly */}
+                <input 
+                  type="hidden" 
+                  id="zenith-mode-store" 
+                  data-mode="true" 
+                  onClick={(e) => {
+                    const mode = e.currentTarget.getAttribute('data-mode') as 'true' | 'ecliptic';
+                    const trueBtn = document.getElementById('true-zenith-btn-ui');
+                    const eclipticBtn = document.getElementById('ecliptic-btn-ui');
+                    const descText = document.getElementById('zenith-comparison-description');
+                    
+                    if (mode === 'true') {
+                      if (trueBtn) {
+                        trueBtn.style.backgroundColor = 'rgba(212, 175, 55, 0.1)';
+                        trueBtn.style.color = '#d4af37';
+                        trueBtn.style.border = '1px solid rgba(212, 175, 55, 0.2)';
+                        trueBtn.classList.remove('opacity-55');
+                      }
+                      if (eclipticBtn) {
+                        eclipticBtn.style.backgroundColor = 'transparent';
+                        eclipticBtn.style.color = 'rgb(156, 163, 175)';
+                        eclipticBtn.style.border = 'none';
+                        eclipticBtn.classList.add('opacity-55');
+                      }
+                      if (descText) {
+                        descText.innerHTML = "Currently rendering the **True Physical Zenith Constellation** passing directly 90° overhead at your Latitude (Dec = " + (location?.lat ?? 25.31).toFixed(2) + "°). These are the literal stars physically coloring your zenith.";
+                      }
+                      
+                      // Change visibility of panels
+                      const trueSection = document.getElementById('true-zenith-grid-layout');
+                      const eclipticSection = document.getElementById('ecliptic-zenith-grid-layout');
+                      if (trueSection) trueSection.classList.remove('hidden');
+                      if (eclipticSection) eclipticSection.classList.add('hidden');
+                    } else {
+                      if (eclipticBtn) {
+                        eclipticBtn.style.backgroundColor = 'rgba(212, 175, 55, 0.1)';
+                        eclipticBtn.style.color = '#d4af37';
+                        eclipticBtn.style.border = '1px solid rgba(212, 175, 55, 0.2)';
+                        eclipticBtn.classList.remove('opacity-55');
+                      }
+                      if (trueBtn) {
+                        trueBtn.style.backgroundColor = 'transparent';
+                        trueBtn.style.color = 'rgb(156, 163, 175)';
+                        trueBtn.style.border = 'none';
+                        trueBtn.classList.add('opacity-55');
+                      }
+                      if (descText) {
+                        descText.innerHTML = "Currently rendering the **Ecliptic Meridian Projection**. This projects your meridian onto the 23.5° tilted plane of the Earth's orbit (the Zodiac belt) to find the traditional MC coordinate sign.";
+                      }
+                      
+                      // Change visibility of panels
+                      const trueSection = document.getElementById('true-zenith-grid-layout');
+                      const eclipticSection = document.getElementById('ecliptic-zenith-grid-layout');
+                      if (trueSection) trueSection.classList.add('hidden');
+                      if (eclipticSection) eclipticSection.classList.remove('hidden');
+                    }
+                  }}
+                />
+
+                <div className="flex gap-4 font-mono text-[10px] bg-white/5 border border-white/5 px-4 py-2 rounded">
+                  <span className="text-dim">ZENITH RA (LST):</span>
+                  <span className="text-gold font-bold">{zenithPresent.lst.toFixed(2)}h</span>
+                </div>
+              </div>
+            </div>
+
+            {/* Explanation comparison card */}
+            <div className="bg-white/[0.01] border border-white/5 px-6 py-4 rounded-xl mb-8 flex flex-col md:flex-row md:items-center justify-between gap-4">
+              <div className="flex items-start gap-3">
+                <Info className="w-5 h-5 text-gold shrink-0 mt-0.5" />
+                <div>
+                  <h4 className="text-xs uppercase tracking-wider text-white font-medium">True Zenith (Physical Stars) vs. Ecliptic (Zodiac)</h4>
+                  <p id="zenith-comparison-description" className="text-[11px] text-dim mt-1 max-w-3xl leading-relaxed">
+                    Currently rendering the **True Physical Zenith Constellation** passing directly 90° overhead at your Latitude (Dec = {(location?.lat ?? 25.31).toFixed(2)}°). These are the literal stars physically coloring your zenith.
+                  </p>
+                </div>
+              </div>
+              <div className="text-[10px] font-mono text-dim/80 bg-white/5 px-3 py-1.5 rounded text-left md:text-right shrink-0">
+                <div>Latitude: <span className="text-white font-semibold">{(location?.lat ?? 25.31).toFixed(4)}°</span></div>
+                <div>Longitude: <span className="text-white font-semibold">{(location?.lng ?? 85.42).toFixed(4)}°</span></div>
+              </div>
+            </div>
+
+            {/* Layout 1: TRUE PHYSICAL ZENITH GRID SYSTEM */}
+            <div id="true-zenith-grid-layout" className="grid grid-cols-1 md:grid-cols-3 xl:grid-cols-4 gap-6 animate-fadeIn">
+              
+              {/* PAST TRUE ZENITH */}
+              {trueZenithPast && (
+                <div className="bg-white/[0.02] border border-white/5 p-6 rounded-2xl relative overflow-hidden flex flex-col justify-between min-h-[220px]">
+                  <div>
+                    <div className="text-[8px] text-dim uppercase tracking-widest mb-4">Past True Zenith (-2H)</div>
+                    <div className="text-sm font-sans font-light text-white/70 flex items-center gap-2">
+                      <span>{trueZenithPast.constellation.name}</span>
+                      <span className="text-[10px] text-white/30 font-mono">({trueZenithPast.constellation.sanskritName})</span>
+                    </div>
+                    <div className="text-[10px] text-dim font-mono mt-1">
+                      {trueZenithPast.startTime.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })} – {trueZenithPast.endTime.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                    </div>
+                  </div>
+                  <div className="mt-6">
+                    <div className="text-[9px] text-dim uppercase tracking-widest border-t border-white/5 pt-3">Passed Impact Field</div>
+                    <p className="text-[11px] text-white/40 italic mt-1 leading-relaxed">
+                      {trueZenithPast.constellation.thinkingImpact}
+                    </p>
+                  </div>
+                </div>
+              )}
+
+              {/* PRESENT TRUE ZENITH (MAJESTIC MIDDLE PANEL) */}
+              {trueZenithPresent && (
+                <div className="bg-gradient-to-br from-gold/[0.04] to-transparent border border-gold/20 p-8 rounded-2xl relative overflow-hidden shadow-[0_4px_30px_rgba(212,175,55,0.03)] ring-1 ring-gold/10 md:col-span-1 xl:col-span-2 flex flex-col justify-between">
+                  <div className="absolute top-0 right-0 bg-gold/10 border-l border-b border-gold/20 text-gold text-[8px] tracking-widest uppercase px-3 py-1.5 rounded-bl-xl font-semibold animate-pulse">
+                    Currently Overhead (True Zenith)
+                  </div>
+                  
+                  <div className="flex flex-col h-full justify-between">
+                    <div>
+                      <div className="text-[9px] text-gold uppercase tracking-[0.2em] mb-4">Active Physical Sky Gate</div>
+                      <h3 className="text-3xl font-light text-gold tracking-wide">
+                        {trueZenithPresent.constellation.name} <span className="text-lg text-white/40 italic font-serif">({trueZenithPresent.constellation.sanskritName})</span>
+                      </h3>
+                      
+                      {/* Subtitles: Ruler, Element & Zone */}
+                      <div className="flex flex-wrap gap-2 mt-2">
+                        <span className="text-[9px] uppercase px-2 py-0.5 rounded bg-white/5 text-slate-350 font-mono">Ruler: {trueZenithPresent.constellation.ruler}</span>
+                        <span className="text-[9px] uppercase px-2 py-0.5 rounded bg-white/5 text-slate-350 font-mono">Element: {trueZenithPresent.constellation.element}</span>
+                        <span className="text-[9px] uppercase px-2 py-0.5 rounded bg-gold/5 text-gold font-mono font-semibold">Overhead Zone: {trueZenithPresent.constellation.latRange}</span>
+                      </div>
+
+                      {/* 3-parts Info tabs or side-by-side splits */}
+                      <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mt-8 pt-6 border-t border-white/5">
+                        <div className="space-y-1">
+                          <span className="text-[10px] text-amber-300 font-medium uppercase tracking-widest block">Vedic Definition</span>
+                          <p className="text-[11px] text-slate-355 leading-relaxed font-light">
+                            {trueZenithPresent.constellation.vedicView}
+                          </p>
+                        </div>
+                        <div className="space-y-1 border-t md:border-t-0 md:border-l border-white/5 pt-4 md:pt-0 md:pl-4">
+                          <span className="text-[10px] text-blue-300 font-medium uppercase tracking-widest block">Structural Projection</span>
+                          <p className="text-[11px] text-slate-355 leading-relaxed font-light">
+                            {trueZenithPresent.constellation.astrologicalView}
+                          </p>
+                        </div>
+                        <div className="space-y-1 border-t md:border-t-0 md:border-l border-white/5 pt-4 md:pt-0 md:pl-4">
+                          <span className="text-[10px] text-emerald-300 font-medium uppercase tracking-widest block">Neural Impact</span>
+                          <p className="text-[11px] text-slate-355 leading-relaxed font-light">
+                            {trueZenithPresent.constellation.aiThinking}
+                          </p>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div className="mt-8 pt-4 border-t border-gold/10">
+                      <span className="text-[9px] text-gold uppercase tracking-[0.2em] block">Cognitive & Mental Influence (Human thinking)</span>
+                      <p className="text-xs text-slate-200 mt-1 italic font-light font-serif leading-relaxed">
+                        "{trueZenithPresent.constellation.thinkingImpact}"
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {/* UPCOMING TRUE ZENITH */}
+              {trueZenithUpcoming && (
+                <div className="bg-white/[0.02] border border-white/5 p-6 rounded-2xl relative overflow-hidden flex flex-col justify-between min-h-[220px]">
+                  <div>
+                    <div className="text-[8px] text-dim uppercase tracking-widest mb-4">Upcoming True Zenith (+2H)</div>
+                    <div className="text-sm font-sans font-light text-white/70 flex items-center gap-2">
+                      <span>{trueZenithUpcoming.constellation.name}</span>
+                      <span className="text-[10px] text-white/30 font-mono">({trueZenithUpcoming.constellation.sanskritName})</span>
+                    </div>
+                    <div className="text-[10px] text-dim font-mono mt-1">
+                      {trueZenithUpcoming.startTime.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })} – {trueZenithUpcoming.endTime.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                    </div>
+                  </div>
+                  <div className="mt-6">
+                    <div className="text-[9px] text-dim uppercase tracking-widest border-t border-white/5 pt-3">Pre-Aligning Wave</div>
+                    <p className="text-[11px] text-white/40 italic mt-1 leading-relaxed">
+                      {trueZenithUpcoming.constellation.thinkingImpact}
+                    </p>
+                  </div>
+                </div>
+              )}
+
+            </div>
+
+            {/* Layout 2: ECLIPTIC MERIDIAN ZODIAC GRID SYSTEM */}
+            <div id="ecliptic-zenith-grid-layout" className="grid grid-cols-1 md:grid-cols-3 xl:grid-cols-4 gap-6 hidden animate-fadeIn">
+              
+              {/* PAST ECLIPTIC */}
+              {zenithPast && (
+                <div className="bg-white/[0.02] border border-white/5 p-6 rounded-2xl relative overflow-hidden flex flex-col justify-between min-h-[220px]">
+                  <div>
+                    <div className="text-[8px] text-dim uppercase tracking-widest mb-4">Past Ecliptic Transit (-2H)</div>
+                    <div className="text-sm font-sans font-light text-white/70 flex items-center gap-2">
+                      <span>{zenithPast.constellation.name}</span>
+                      <span className="text-[10px] text-white/30 font-mono">({zenithPast.constellation.sanskritName})</span>
+                    </div>
+                    <div className="text-[10px] text-dim font-mono mt-1">
+                      {zenithPast.startTime.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })} – {zenithPast.endTime.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                    </div>
+                  </div>
+                  <div className="mt-6">
+                    <div className="text-[9px] text-dim uppercase tracking-widest border-t border-white/5 pt-3">Passed Impact Field</div>
+                    <p className="text-[11px] text-white/40 italic mt-1 leading-relaxed">
+                      {zenithPast.constellation.thinkingImpact}
+                    </p>
+                  </div>
+                </div>
+              )}
+
+              {/* PRESENT ECLIPTIC (MAJESTIC MIDDLE PANEL) */}
+              {zenithPresent && (
+                <div className="bg-gradient-to-br from-gold/[0.04] to-transparent border border-gold/20 p-8 rounded-2xl relative overflow-hidden shadow-[0_4px_30px_rgba(212,175,55,0.03)] ring-1 ring-gold/10 md:col-span-1 xl:col-span-2 flex flex-col justify-between">
+                  <div className="absolute top-0 right-0 bg-gold/10 border-l border-b border-gold/20 text-gold text-[8px] tracking-widest uppercase px-3 py-1.5 rounded-bl-xl font-semibold animate-pulse">
+                    Currently Overhead (Ecliptic Zodiac)
+                  </div>
+                  
+                  <div className="flex flex-col h-full justify-between">
+                    <div>
+                      <div className="text-[9px] text-gold uppercase tracking-[0.2em] mb-4">Active Meridian Zodiac Gate</div>
+                      <h3 className="text-3xl font-light text-gold tracking-wide">
+                        {zenithPresent.constellation.name} <span className="text-lg text-white/40 italic font-serif">({zenithPresent.constellation.sanskritName})</span>
+                      </h3>
+                      
+                      {/* Subtitles: Ruler & Element */}
+                      <div className="flex gap-2 mt-2">
+                        <span className="text-[9px] uppercase px-2 py-0.5 rounded bg-white/5 text-slate-350 font-mono">Ruler: {zenithPresent.constellation.ruler}</span>
+                        <span className="text-[9px] uppercase px-2 py-0.5 rounded bg-white/5 text-slate-350 font-mono">Element: {zenithPresent.constellation.element}</span>
+                        <span className="text-[9px] uppercase px-2 py-0.5 rounded bg-gold/5 text-gold font-mono font-semibold">RA Range: {zenithPresent.constellation.raRange}</span>
+                      </div>
+
+                      {/* 3-parts Info tabs or side-by-side splits */}
+                      <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mt-8 pt-6 border-t border-white/5">
+                        <div className="space-y-1">
+                          <span className="text-[10px] text-amber-300 font-medium uppercase tracking-widest block">Vedic Definition</span>
+                          <p className="text-[11px] text-slate-355 leading-relaxed font-light">
+                            {zenithPresent.constellation.vedicView}
+                          </p>
+                        </div>
+                        <div className="space-y-1 border-t md:border-t-0 md:border-l border-white/5 pt-4 md:pt-0 md:pl-4">
+                          <span className="text-[10px] text-blue-300 font-medium uppercase tracking-widest block">Astrological View</span>
+                          <p className="text-[11px] text-slate-355 leading-relaxed font-light">
+                            {zenithPresent.constellation.astrologicalView}
+                          </p>
+                        </div>
+                        <div className="space-y-1 border-t md:border-t-0 md:border-l border-white/5 pt-4 md:pt-0 md:pl-4">
+                          <span className="text-[10px] text-emerald-300 font-medium uppercase tracking-widest block">AI Conclusion</span>
+                          <p className="text-[11px] text-slate-355 leading-relaxed font-light">
+                            {zenithPresent.constellation.aiThinking}
+                          </p>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div className="mt-8 pt-4 border-t border-gold/10">
+                      <span className="text-[9px] text-gold uppercase tracking-[0.2em] block">Cognitive & Mental Influence (Human thinking)</span>
+                      <p className="text-xs text-slate-200 mt-1 italic font-light font-serif leading-relaxed">
+                        "{zenithPresent.constellation.thinkingImpact}"
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {/* UPCOMING ECLIPTIC */}
+              {zenithUpcoming && (
+                <div className="bg-white/[0.02] border border-white/5 p-6 rounded-2xl relative overflow-hidden flex flex-col justify-between min-h-[220px]">
+                  <div>
+                    <div className="text-[8px] text-dim uppercase tracking-widest mb-4">Upcoming Ecliptic Transit (+2H)</div>
+                    <div className="text-sm font-sans font-light text-white/70 flex items-center gap-2">
+                      <span>{zenithUpcoming.constellation.name}</span>
+                      <span className="text-[10px] text-white/30 font-mono">({zenithUpcoming.constellation.sanskritName})</span>
+                    </div>
+                    <div className="text-[10px] text-dim font-mono mt-1">
+                      {zenithUpcoming.startTime.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })} – {zenithUpcoming.endTime.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                    </div>
+                  </div>
+                  <div className="mt-6">
+                    <div className="text-[9px] text-dim uppercase tracking-widest border-t border-white/5 pt-3">Pre-Aligning Wave</div>
+                    <p className="text-[11px] text-white/40 italic mt-1 leading-relaxed">
+                      {zenithUpcoming.constellation.thinkingImpact}
+                    </p>
+                  </div>
+                </div>
+              )}
+
+            </div>
+          </div>
+        )}
 
         <footer className="mt-12 pt-8 border-t border-white/10 text-center text-[10px] text-dim tracking-[0.1em] uppercase font-light">
           <div className="flex flex-wrap justify-center gap-x-6 gap-y-2 opacity-60">
