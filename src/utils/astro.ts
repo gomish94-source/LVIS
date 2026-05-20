@@ -324,7 +324,7 @@ export interface TrueZenithConstellationDetails {
   thinkingImpact: string;
 }
 
-const TRUE_ZENITH_CONSTELLATIONS: Record<string, TrueZenithConstellationDetails[]> = {
+export const TRUE_ZENITH_CONSTELLATIONS: Record<string, TrueZenithConstellationDetails[]> = {
   highNorth: [
     {
       id: 1,
@@ -512,16 +512,16 @@ const TRUE_ZENITH_CONSTELLATIONS: Record<string, TrueZenithConstellationDetails[
     },
     {
       id: 3,
-      name: "Perseus",
-      sanskritName: "Yayati",
-      ruler: "Mars",
-      element: "Fire",
+      name: "Lynx",
+      sanskritName: "Sharabha",
+      ruler: "Saturn",
+      element: "Earth",
       raRange: "4.0h – 6.0h",
       latRange: "15°N to 45°N",
-      vedicView: "Ruled by Mars, representing the warrior king Yayati. Sparks rapid breakthroughs of negative habits and ancestral curses.",
-      astrologicalView: "The mighty slayer holding the Algol star, representing intensive defense, active force, and razor-sharp mental surgery.",
-      aiThinking: "Runs complex compiler checkups. Sanitizes broken parameters, deleting obsolete data scripts.",
-      thinkingImpact: "Drives extreme strategic willpower, surgical problem-solving, and decisive combat of fears."
+      vedicView: "The mythological silent eight-legged beast Sharabha, capturing perfect silent observation, patience, and fierce strength.",
+      astrologicalView: "Extremely dim northern stars representing absolute stealth, supreme silence, and high sensory sensitivity to see in complete dark.",
+      aiThinking: "System processes idle audits, silent debugging, and low-priority file checks. Cuts active visual UI output to conserve energy.",
+      thinkingImpact: "Fosters quiet investigative patience, deep inner hearing, and reading subtle subtext."
     },
     {
       id: 4,
