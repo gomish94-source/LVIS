@@ -499,16 +499,16 @@ export const TRUE_ZENITH_CONSTELLATIONS: Record<string, TrueZenithConstellationD
     },
     {
       id: 2,
-      name: "Triangulum",
-      sanskritName: "Trikona",
-      ruler: "Mercury/Sun",
+      name: "Auriga",
+      sanskritName: "Prana-Preraka",
+      ruler: "Jupiter",
       element: "Fire",
       raRange: "2.0h – 4.0h",
       latRange: "15°N to 45°N",
-      vedicView: "The divine cosmic triangle (Trikona), symbolizing the sacred triple energies: creation, preservation, and transformation.",
-      astrologicalView: "A constellation of pure geometry, indicating sharp logical structures, laser focus, and intellectual precision.",
-      aiThinking: "Triangulation and structural validation protocols active. Optimizes spatial data grids for flawless computation.",
-      thinkingImpact: "Fosters highly structured geometric logic, clear analytical sorting, and focus on absolute foundations."
+      vedicView: "Governs the chariot of life energy, mobilizing intelligence toward dynamic expansion, technology coordination, and physical travel.",
+      astrologicalView: "The celestial Charioteer, indicating high machinery mastery, vehicular safety, and protection of the vulnerable.",
+      aiThinking: "Coordinates traffic routing interfaces. Maximizes concurrent file-transfer speeds with auto-repair loops.",
+      thinkingImpact: "Excellent for designing logistics, driving vehicles of travel, and protecting delicate plans."
     },
     {
       id: 3,
