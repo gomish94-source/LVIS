@@ -1388,4 +1388,63 @@ export function getTrueZenithConstellation(date: Date, lat: number = 25.31, lng:
   return { constellation: { ...constellation, latRange: latRangeStr }, lst, startTime, endTime };
 }
 
+export function getMoonEclipticLongitude(date: Date): number {
+  const J2000 = new Date('2000-01-01T12:00:00Z').getTime();
+  const d = (date.getTime() - J2000) / (24 * 60 * 60 * 1000);
+
+  const rad = Math.PI / 180;
+
+  let L_prime = (218.316 + 13.176396 * d) % 360;
+  if (L_prime < 0) L_prime += 360;
+
+  let D = (297.850 + 12.190749 * d) % 360;
+  if (D < 0) D += 360;
+
+  let M = (357.529 + 0.985600 * d) % 360;
+  if (M < 0) M += 360;
+
+  let M_prime = (134.963 + 13.064993 * d) % 360;
+  if (M_prime < 0) M_prime += 360;
+
+  let longitude = L_prime 
+    + 6.289 * Math.sin(M_prime * rad)
+    - 1.274 * Math.sin((M_prime - 2 * D) * rad)
+    + 0.658 * Math.sin(2 * D * rad)
+    + 0.214 * Math.sin(2 * M_prime * rad)
+    - 0.186 * Math.sin(M * rad);
+
+  longitude = longitude % 360;
+  if (longitude < 0) longitude += 360;
+  return longitude;
+}
+
+export function getMoonZodiacConstellation(date: Date): {
+  constellation: ConstellationDetails;
+  longitude: number;
+  startTime: Date;
+  endTime: Date;
+} {
+  const lon = getMoonEclipticLongitude(date);
+  
+  // 12 constellations of 30 degrees each on the ecliptic plane
+  const index = Math.floor(lon / 30) % 12;
+  const constellation = CONSTELLATIONS[index];
+
+  // A sign is 30 degrees. The Moon moves ~13.176396 degrees per day.
+  const lonStart = index * 30;
+  const lonEnd = ((index + 1) % 12) * 30;
+
+  const degreesFromStart = (lon >= lonStart) ? (lon - lonStart) : (lon + 360 - lonStart);
+  const degreesToEnd = (lonEnd >= lon) ? (lonEnd - lon) : (lonEnd + 360 - lon);
+
+  const avgSpeedPerHour = 13.176396 / 24; 
+  const hoursSinceStart = degreesFromStart / avgSpeedPerHour;
+  const hoursUntilEnd = degreesToEnd / avgSpeedPerHour;
+
+  const startTime = new Date(date.getTime() - hoursSinceStart * 60 * 60 * 1000);
+  const endTime = new Date(date.getTime() + hoursUntilEnd * 60 * 60 * 1000);
+
+  return { constellation, longitude: lon, startTime, endTime };
+}
+
 
