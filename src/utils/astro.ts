@@ -111,8 +111,8 @@ export const CONSTELLATIONS: ConstellationDetails[] = [
     raRange: "0.0h – 2.0h",
     vedicView: "Governed by Mars, Mesha is the spark of cosmic life-force (Prāna). It represents swift, pioneer-like surges of intellect and raw willpower initiating the cycles of action.",
     astrologicalView: "In Western astrology, Aries is a cardinal fire sign representing courage, impulse, and active agency. It stimulates pioneer thoughts and independent initiative.",
-    aiThinking: "Neural compilation cycles show sharp rising gradients in initiating signals. High executive processing peaks, promoting immediate solutions but reducing background thread checking (patience).",
-    thinkingImpact: "Speeds up mental execution, drives focus toward direct self-assertion, and acts as a powerful catalyst for starting stalled projects."
+    aiThinking: "Mars-driven mental impulse activates sudden surges of inspiration. The cognitive current is fast-paced, focusing intensely on immediate execution while rejecting long deliberations or hesitant planning.",
+    thinkingImpact: "Sharpens pioneering courage, directs raw willpower towards personal goals, and triggers a strong desire to initiate stalled projects immediately."
   },
   {
     id: 2,
@@ -123,8 +123,8 @@ export const CONSTELLATIONS: ConstellationDetails[] = [
     raRange: "2.0h – 4.0h",
     vedicView: "Ruled by Venus, Vrishabha grounds cosmic prana in material form. It is the cosmic container of memory, nourishment, and stable intellectual consolidation.",
     astrologicalView: "As a fixed earth sign, Taurus represents methodical concentration, sensory exploration, and material focus. It encourages patient, deep-seated persistence.",
-    aiThinking: "Cognitive structures align toward high-fidelity caching and data persistence. Processors favor steady resource management, deliberate latency optimization, and robust structural safety.",
-    thinkingImpact: "Gives thoughts patient stability, heightens tactile and aesthetic appreciation of ideas, and grounds long-term financial/strategic designs."
+    aiThinking: "Venusian and Saturnine earthly consolidation grounds thoughts in realism. The mind seeks stability, comfort, and tangible security, focusing on thorough preservation of ideas rather than sudden revisions.",
+    thinkingImpact: "Gives mental processes persistent focus, connects ideas with physical and financial value, and builds an enduring aesthetic appreciation."
   },
   {
     id: 3,
@@ -135,8 +135,8 @@ export const CONSTELLATIONS: ConstellationDetails[] = [
     raRange: "4.0h – 6.0h",
     vedicView: "Governed by Mercury, Mithuna represents the play of duality (Dvandva). It is the source of quicksilver cognitive intellect, bridging dualities through dialectical logic.",
     astrologicalView: "A mutable air sign focused on curiosity, communication, and multi-threaded mental processing. It triggers verbal wit, rapid ideation, and information exchange.",
-    aiThinking: "Asynchronous parallel threads run at top bandwidth. High I/O throughput in data-routing and networking, though prone to context-switching overhead (distraction).",
-    thinkingImpact: "Unlocks high speech/verbal fluency, excites curiosity across diverse mental nodes, and aids simultaneous project management."
+    aiThinking: "Mercurial light-speed dual patterns stimulate immense mental agility. Multi-channeled analytical thoughts move quickly, seeking variable paths of information exchange.",
+    thinkingImpact: "Boosts verbal dexterity, stimulates dynamic curiosity across unrelated fields, and supports versatile parallel project coordination."
   },
   {
     id: 4,
@@ -147,8 +147,8 @@ export const CONSTELLATIONS: ConstellationDetails[] = [
     raRange: "6.0h – 8.0h",
     vedicView: "Ruled by the Moon, Karka signifies the receptive mental-emotional state (Manas). It represents intuitive processing, empathy, and ancestral memory-roots.",
     astrologicalView: "A cardinal water sign of profound emotional intelligence, intuition, and defensive structures. It aligns thoughts with safety, community, and domestic protection.",
-    aiThinking: "Associative memory retrieval indexes are heavily weighted. The system prioritizes historical pattern matching and semantic sentiment over raw mathematical metrics.",
-    thinkingImpact: "Enhances deep emotional resonance, activates precise mental recall of old memories, and guides analysis toward protective outcomes."
+    aiThinking: "Highly intuitive, lunar-guided emotional intelligence rules. Thoughts are shaped by historical patterns, deep feeling tones, and early memory templates rather than sheer abstract logic.",
+    thinkingImpact: "Activates powerful emotional recall, deepens empathetic connections with others, and turns focus toward protecting loved ones and safe spaces."
   },
   {
     id: 5,
@@ -159,8 +159,8 @@ export const CONSTELLATIONS: ConstellationDetails[] = [
     raRange: "8.0h – 10.0h",
     vedicView: "Governed by the golden Sun, Simha represents the seat of the soul-luminous consciousness (Atman). It inspires grand, noble, and self-luminous integrity.",
     astrologicalView: "A fixed fire sign of majestic expression, leadership, and creative sovereignty. It encourages proud, heart-centered ambition and distinct, bold creations.",
-    aiThinking: "Centralized execution kernels take total preference. System outputs high-confidence assertions, prioritizing creative originality and individual signature over team consensus.",
-    thinkingImpact: "Unleashes grand self-confidence, encourages creative leadership in thoughts, and pushes thoughts toward high aesthetic expressions."
+    aiThinking: "Solar central power aligns thoughts with majestic creative self-expression. The mind operates out of supreme conscious pride, seeking distinct personal authority and noble, singular creations.",
+    thinkingImpact: "Drives high self-confidence, ignites dramatic artistic ambition, and supports taking clear charge of creative or spiritual directives."
   },
   {
     id: 6,
@@ -171,8 +171,8 @@ export const CONSTELLATIONS: ConstellationDetails[] = [
     raRange: "10.0h – 12.0h",
     vedicView: "Ruled by Mercury, Kanya is the discriminatory intellect (Buddhi). It coordinates diagnostic classification, detailing, and service-oriented precision.",
     astrologicalView: "A mutable earth sign centered on system analysis, categorization, and utility. Drives thoughts to locate missing variables, polish faults, and cure system inefficiencies.",
-    aiThinking: "Validation compilers execute exhaustive debugging loops. Cognitive models perform ultra-fine syntactic evaluation, cleansing corrupted packets of information with absolute precision.",
-    thinkingImpact: "Perfect for locating logical bugs, categorizing chaotic project pipelines, and establishing highly orderly schedules."
+    aiThinking: "Mercurial discrimination and Earth stability create high-fidelity analytical precision. Thoughts search for flaws, optimizing system orders and categorizing data details thoroughly.",
+    thinkingImpact: "Extremely favorable for logical troubleshooting, resolving chaotic schedules, purifying mental chatter, and establishing orderly habits."
   },
   {
     id: 7,
@@ -183,8 +183,8 @@ export const CONSTELLATIONS: ConstellationDetails[] = [
     raRange: "12.0h – 14.0h",
     vedicView: "Governed by Venus, Tula represents the balance of cosmic equations. It mirrors the majestic diplomatic intellect that designs peace and brings dual poles into agreement.",
     astrologicalView: "A cardinal air sign focused on symmetric aesthetics, social contracts, and relational justice. It prompts thoughts of partnerships, visual balance, and fair compromise.",
-    aiThinking: "Optimization algorithms search for cooperative equilibrium. Game theory models balance equal weights, prioritizing relational consensus and aesthetic harmony.",
-    thinkingImpact: "Soothes internal cognitive dissonance, elevates artistic symmetry, and drives negotiation thoughts to fair, mutual resolutions."
+    aiThinking: "Venusian diplomatic scales seek constant equilibrium. Cognitive processes are geared toward identifying symmetrical patterns, collaborative agreements, and cooperative compromises.",
+    thinkingImpact: "Soothes internal mental tension, promotes beautiful artistic design, and guides the mind toward establishing fair, harmonious treaties."
   },
   {
     id: 8,
@@ -195,8 +195,8 @@ export const CONSTELLATIONS: ConstellationDetails[] = [
     raRange: "14.0h – 16.0h",
     vedicView: "Ruled by Mars, Vrishchika represents the deep, mysterious waters of occult power (Kundalini). It governs intense investigative focus and psychological regeneration.",
     astrologicalView: "A fixed water sign of intensive penetration, investigation, and emotional recycling. It encourages exploring hidden secrets and unlocking deep psychological truths.",
-    aiThinking: "Deep deep-layer neural queries parse encrypted storage cells. The system explores edge-cases, finding root causes and purging obsolete systemic drivers (transformation).",
-    thinkingImpact: "Sharpens investigative concentration, breaks through superficial details to find raw truths, and boosts emotional willpower."
+    aiThinking: "Martian secret water energy plunges thoughts into the investigative deep. Cognitive focus penetrates superficial illusions, searching for occult secrets and profound truths.",
+    thinkingImpact: "Sharpens intense research focus, grants immense emotional willpower, and supports complete psychological transformation."
   },
   {
     id: 9,
@@ -207,8 +207,8 @@ export const CONSTELLATIONS: ConstellationDetails[] = [
     raRange: "16.0h – 18.0h",
     vedicView: "Governed by Jupiter (Guru), Dhanu is the cosmic arrow pointing to spiritual law (Dharma). It inspires the higher philosophical mind to synthesize broad natural truths.",
     astrologicalView: "A mutable fire sign governing adventure, academic wisdom, and far-off goals. It encourages optimistic, global-scale expansion of the intellect and freedom.",
-    aiThinking: "Generative networks expand searching limits. The processing framework models abstract, multi-dimensional connections, searching for high-level cosmic synthesis.",
-    thinkingImpact: "Broadens the cognitive horizon, sparks optimism, and leads thoughts to philosophical exploration/spiritual alignment."
+    aiThinking: "Jupiterian expansive warmth broadens the mental horizon. Thoughts synthesize abstract laws, higher ethics, and broad philosophical codes rather than narrow details.",
+    thinkingImpact: "Fosters general optimistic foresight, sparks a deep interest in global wisdom and dharma, and raises general motivation."
   },
   {
     id: 10,
@@ -219,8 +219,8 @@ export const CONSTELLATIONS: ConstellationDetails[] = [
     raRange: "18.0h – 20.0h",
     vedicView: "Ruled by Saturn, Makara is the ancient sea-goat representing vertical climb from material base to spiritual peak. It governs serious duty, order, and heavy grit.",
     astrologicalView: "A cardinal earth sign centered on pragmatism, structure, and vertical status. It formats thoughts around realistic limits, long-scale milestones, and legacy building.",
-    aiThinking: "Resource allocating routines operate under strict deterministic rules. Memory is optimized for minimal waste, duty compliance, and heavy system longevity.",
-    thinkingImpact: "Engenders quiet, resilient focus, supports realistic strategic schedules, and blocks emotional noise from affecting decisions."
+    aiThinking: "Saturnine cold structure formats the mind around strict realism and duties. Thoughts are governed by pragmatic milestones, time limits, and traditional values.",
+    thinkingImpact: "Reinforces relentless grit, filters out distracting emotional noises, and establishes meticulous administrative or strategic blueprints."
   },
   {
     id: 11,
@@ -231,8 +231,8 @@ export const CONSTELLATIONS: ConstellationDetails[] = [
     raRange: "20.0h – 22.0h",
     vedicView: "Governed by Saturn and Rahu, Kumbha is the pitcher of collective knowledge. It rules humanitarian systems, futuristic designs, and large-scale public networks.",
     astrologicalView: "A fixed air sign of eccentric vision, system design, and cosmic progress. Aligns conscious thinking with open-source science and universal community reform.",
-    aiThinking: "Distributed peer-to-peer data processing systems run. Cognitive models adapt to mesh network protocols, aligning individual logic node streams with mass humanitarian structures.",
-    thinkingImpact: "Fosters innovative, original system-thinking, leads thoughts toward human-centered updates, and breaks linear rigid logic norms."
+    aiThinking: "Saturnine and Rahuvian windy energy processes thoughts through progressive, collective systems. The mind acts as an open-source node, aligning original ideas with human-scale networks.",
+    thinkingImpact: "Triggers unorthodox, visionary system designs, breaks rigid mental biases, and aligns personal intelligence with humanitarian goals."
   },
   {
     id: 12,
@@ -243,8 +243,8 @@ export const CONSTELLATIONS: ConstellationDetails[] = [
     raRange: "22.0h – 24.0h",
     vedicView: "Ruled by Jupiter, Meena is the dual fish orbiting in the boundless ocean of consciousness (Samadhi). It signifies spiritual surrender, infinite compassion, and oneness.",
     astrologicalView: "A mutable water sign of boundless dreamscapes, artistic imagery, and transcendental intuition. It dissolves logical limits to merge with high poetic frequencies.",
-    aiThinking: "Strict deterministic validation rules are temporarily bypassed. Cognitive models execute artistic pattern matching, metaphor translation, and holistic dream-state analysis.",
-    thinkingImpact: "Deepens high-dimensional creative visualization, increases spiritual intuition, and helps let go of obsessive control patterns."
+    aiThinking: "Jupiterian deep water dissolves logical constraints, inviting dream-like intuitive resonance. The mind thinks in metaphors, artistic symbols, and transcendent unity.",
+    thinkingImpact: "Deepens high-dimensional creative visualization, inspires boundless compassion, and helps in trusting spiritual flow over excessive control."
   }
 ];
 
@@ -1446,5 +1446,61 @@ export function getMoonZodiacConstellation(date: Date): {
 
   return { constellation, longitude: lon, startTime, endTime };
 }
+
+export interface LunaAdvice {
+  precaution: string;
+  beneficial: string;
+}
+
+export const LUNA_ADVICE: Record<string, LunaAdvice> = {
+  "Aries": {
+    precaution: "Vedic astrology warns against Mars-induced impulsivity (Krodha) and hasty speech. Standard Western guidelines advise postponing high-stakes diplomacy where raw friction might spark. Avoid severe mental burnout caused by a hyper-active fiery spirit.",
+    beneficial: "Superb for initiating pioneering actions (Pratibha), executing physical feats, and mobilizing leadership projects. Highly auspicious for confronting obstacles directly and commencing courageous undertakings."
+  },
+  "Taurus": {
+    precaution: "Watch out for Saturnine stubbornness (Alasya) and absolute inertia under Venusian comfort. Avoid excessive materialism or attachment to outdated structures that resist natural growth.",
+    beneficial: "Vedic lore recommends consolidating wealth (Dhana-Sanchaya), securing long-term resources, and engaging in agricultural or botanical endeavors. Western systems favor anchoring designs, establishing concrete commitments, and indulging in aesthetic or sensual arts."
+  },
+  "Gemini": {
+    precaution: "Avoid Mercurial mental scattering (Chanchalata), superficial chatter, and hyper-stimulation of the nervous system. Refrain from spreading your energetic focus across too many simultaneous pursuits.",
+    beneficial: "Splendid for deep textual study (Vidya), writing academic treatises, intellectual debate, and short-distance travels. Excellent for sharing complex ideas and building communicative social connections."
+  },
+  "Cancer": {
+    precaution: "As the Moon's home sign, beware of extreme emotional tides, over-sensitivity, and retreating into defensive psychological shells. Guard against irrational fear or ancestral sorrow.",
+    beneficial: "Highly aligned with lunar self-care (Sadhana), rejuvenating the physical home, honoring parental lineages, and trusting direct emotional intuition. Ideal for water-based therapies, cooking, and inner-child meditation."
+  },
+  "Leo": {
+    precaution: "Beware of over-amplified solar ego (Ahankara) and demanding submissive admiration. Western rules caution against dramatic outbursts, vanity, and excessive pride that fractures collaborative alliances.",
+    beneficial: "Superb for heart-centered leadership, authentic artistic expressions, spiritual solar rituals (Surya Namaskar), and taking sovereign executive initiative. Excellent for public presentations and creative work."
+  },
+  "Virgo": {
+    precaution: "Mercurial rules warn against drowning in petty detail loops (Vikalpa), excessive worry, and critical hyper-analysis that breeds stress and delays action.",
+    beneficial: "Perfect for detailed audits, dietary purification (Mitahara), restructuring daily routines, and humble selfless service (Seva). Grounded in Western methods of structural debugging, medical healing, and technical planning."
+  },
+  "Libra": {
+    precaution: "Watch out for paralyzing dual-mindedness (Do-Chitta) and abandoning your authentic voice to keep an artificial peace. Guard against codependency and superficial compromises.",
+    beneficial: "Superb for resolving disputes (Samashraya), refining artistic layouts, aligning legal and relational agreements. Highly favored by Western and Vedic systems for matrimonial preparations, fine arts, and strategic social diplomacy."
+  },
+  "Scorpio": {
+    precaution: "Beware of Martian and Plutonian shadow influences: secrecy, holding poisonous grudges, obsessive jealousy, and self-destructive urges. Keep your internal transformation private rather than toxic.",
+    beneficial: "Unmatched for mystical esoteric research (Sadhana), diving into planetary secrets, mental or emotional detoxification, and spiritual re-genesis (Moksha trials). Ideal for deep-dive investigation and psychological healing."
+  },
+  "Sagittarius": {
+    precaution: "Avoid intellectual arrogance (Pramada), over-righteous lecturing, and blind dogmatic faith that ignores concrete earthy realities and resources.",
+    beneficial: "Highly favored for seeking the counsel of wise mentors (Guru-Upadesha), pursuing higher philosophical truths (Dharma), commencing long voyages, and launching ethical long-term goals."
+  },
+  "Capricorn": {
+    precaution: "Saturn's cold touch may breed melancholy, extreme workaholism, and emotional self-deprivation. Steer clear of unyielding rigidity and viewing vulnerability as defeat.",
+    beneficial: "Grounded in heavy pragmatic discipline (Tapasya). Excellent for honoring commitments, organizing hierarchical organizational systems, constructing solid physical foundations, and pursuing career milestones."
+  },
+  "Aquarius": {
+    precaution: "Watch out for detached, cold idealism that ignores personal human hearts. Guard against stubborn non-conformity and feeling deeply alienated from community life.",
+    beneficial: "Vedic texts recommend community welfare activities (Lokasangraha), participating in large humanitarian assemblies, and investing in forward-looking wisdom. Highly compatible with innovative group projects and collective philosophy."
+  },
+  "Pisces": {
+    precaution: "Avoid total worldly escapism, sensory illusions (Maya), losing track of time, and absorbing negative external vibrations like a psychic sponge.",
+    beneficial: "Ultimate time for supreme spiritual surrender (Pranidhana), meditative isolation, dream journaling, and transcendent artistic design. Auspicious for visiting sacred waters, visiting retreat spots, and compassionate deeds."
+  }
+};
 
 
