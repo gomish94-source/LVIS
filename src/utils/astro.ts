@@ -248,6 +248,377 @@ export const CONSTELLATIONS: ConstellationDetails[] = [
   }
 ];
 
+export interface SurroundingConstellation {
+  name: string;
+  sanskritName: string;
+  direction: string;
+  relation: string;
+  description: string;
+}
+
+export const ZODIAC_SURROUNDINGS: Record<string, SurroundingConstellation[]> = {
+  "Aries": [
+    {
+      name: "Triangulum",
+      sanskritName: "Trikona",
+      direction: "Directly North",
+      relation: "Overhead Meridian",
+      description: "A geometric beacon of pure logic and creative focus, channeling the initial fiery energy of Aries toward structural precision."
+    },
+    {
+      name: "Perseus",
+      sanskritName: "Yayati",
+      direction: "Far North",
+      relation: "Zenith Climax",
+      description: "The celestial warrior rising heroically at polar overhead coordinates, symbolizing active agency and the removal of mental blocks."
+    },
+    {
+      name: "Pisces",
+      sanskritName: "Meena",
+      direction: "West",
+      relation: "Fading Gate",
+      description: "The cosmic ocean of wisdom transitioning into the past, having cleared the path for Aries' self-assertion."
+    },
+    {
+      name: "Taurus",
+      sanskritName: "Vrishabha",
+      direction: "East",
+      relation: "Rising Gate",
+      description: "The physical realm of stable accumulation preparing to lock in and synthesize Aries' rapid inspiration."
+    }
+  ],
+  "Taurus": [
+    {
+      name: "Auriga",
+      sanskritName: "Prana-Preraka",
+      direction: "Directly North",
+      relation: "Zenith Climax",
+      description: "The golden Charioteer guiding vital life-force overhead, safeguarding plans and optimizing technology coordination."
+    },
+    {
+      name: "Orion",
+      sanskritName: "Mrigashira",
+      direction: "Southeast",
+      relation: "Astrological Companion",
+      description: "The mighty celestial hunter, projecting intense creative courage and high-stakes determination from the southeast flank."
+    },
+    {
+      name: "Perseus",
+      sanskritName: "Yayati",
+      direction: "Northwest",
+      relation: "Overhead Neighbor",
+      description: "The sword-bearing hero standing guard to the northwest, channeling sharp diagnostic speed and threat mitigation."
+    },
+    {
+      name: "Gemini",
+      sanskritName: "Mithuna",
+      direction: "East",
+      relation: "Rising Gate",
+      description: "The swift portal of curiosity and dual speech preparing to communicate Taurus' established values."
+    }
+  ],
+  "Gemini": [
+    {
+      name: "Lynx",
+      sanskritName: "Sharabha",
+      direction: "Directly North",
+      relation: "Zenith Climax",
+      description: "A silent, ultra-sensitive guide of quiet debugging and deep observation hovering directly overhead."
+    },
+    {
+      name: "Auriga",
+      sanskritName: "Prana-Preraka",
+      direction: "West",
+      relation: "Overhead Boundary",
+      description: "The cosmic vehicle controller moving to the western sky, cementing structural stability and logistics."
+    },
+    {
+      name: "Taurus",
+      sanskritName: "Vrishabha",
+      direction: "Southwest",
+      relation: "Fading Gate",
+      description: "The steady material base of memory and wealth setting slowly in the southwest horizon."
+    },
+    {
+      name: "Cancer",
+      sanskritName: "Karka",
+      direction: "East",
+      relation: "Rising Gate",
+      description: "The intuitive waters of emotional security rising to cradle Gemini's logical connections."
+    }
+  ],
+  "Cancer": [
+    {
+      name: "Lynx",
+      sanskritName: "Sharabha",
+      direction: "Directly North",
+      relation: "Zenith Climax",
+      description: "Stealthy eye of deep, meditative awareness. Filters mental chatter to safeguard Karka's interior peace."
+    },
+    {
+      name: "Leo Minor",
+      sanskritName: "Simha-Balaka",
+      direction: "Northeast",
+      relation: "Overhead Neighbor",
+      description: "The young lion cub sparking optimistic prototyping and brave initiatives, lighting up the northeast sky."
+    },
+    {
+      name: "Gemini",
+      sanskritName: "Mithuna",
+      direction: "West",
+      relation: "Fading Gate",
+      description: "The dual communicative intellect settling westward, passing the torch to deep emotional awareness."
+    },
+    {
+      name: "Leo",
+      sanskritName: "Simha",
+      direction: "East",
+      relation: "Rising Gate",
+      description: "The sovereign, self-luminous sun-portal preparing to step into grand, creative visibility."
+    }
+  ],
+  "Leo": [
+    {
+      name: "Leo Minor",
+      sanskritName: "Simha-Balaka",
+      direction: "Directly North",
+      relation: "Zenith Climax",
+      description: "The energetic cub of raw courage, playing at the zenith heights to boost Simha's creative risk trials."
+    },
+    {
+      name: "Ursa Major",
+      sanskritName: "Saptarishi",
+      direction: "Far North",
+      relation: "Navigational Guide",
+      description: "The ancient Seven Sages anchoring cosmic law at higher northern borders, framing Leo's leadership with moral duty."
+    },
+    {
+      name: "Cancer",
+      sanskritName: "Karka",
+      direction: "West",
+      relation: "Fading Gate",
+      description: "The subjective waters of intuitive preparation resting in the west to let the solar soul shine."
+    },
+    {
+      name: "Virgo",
+      sanskritName: "Kanya",
+      direction: "East",
+      relation: "Rising Gate",
+      description: "The discriminatory engine of analytical detail rising to organize Leo's creative structures."
+    }
+  ],
+  "Virgo": [
+    {
+      name: "Coma Berenices",
+      sanskritName: "Kesha-Pasha",
+      direction: "Directly North",
+      relation: "Zenith Climax",
+      description: "Refined golden hair of dedicated service and aesthetic symmetry, healing cognitive stress overhead."
+    },
+    {
+      name: "Boötes",
+      sanskritName: "Bhutapati",
+      direction: "Northeast",
+      relation: "Overhead Neighbor",
+      description: "The ultimate Herdsman coordinating task allocation and task execution under heavy, steady systems."
+    },
+    {
+      name: "Leo",
+      sanskritName: "Simha",
+      direction: "West",
+      relation: "Fading Gate",
+      description: "The self-centered creative authority settling west to make room for humble, precise service."
+    },
+    {
+      name: "Libra",
+      sanskritName: "Tula",
+      direction: "East",
+      relation: "Rising Gate",
+      description: "The diplomatic scales of relational harmony and symmetry preparing to balance Virgo's diagnostic sorting."
+    }
+  ],
+  "Libra": [
+    {
+      name: "Boötes",
+      sanskritName: "Arcturus-Ayus",
+      direction: "Northwest",
+      relation: "Zenith Neighbor",
+      description: "The bright star Svati (Arcturus) shining high, inspiring expansive trading intelligence and independent wind mobility."
+    },
+    {
+      name: "Serpens Caput",
+      sanskritName: "Sarpa-Shirsha",
+      direction: "North",
+      relation: "Overhead Meridian",
+      description: "The head of the planetary serpent, signaling deep-layer logical networks and highly focused strategic diagnostics."
+    },
+    {
+      name: "Virgo",
+      sanskritName: "Kanya",
+      direction: "West",
+      relation: "Fading Gate",
+      description: "The discriminatory analyzer descending westward, leaving its structured metrics in perfect balance."
+    },
+    {
+      name: "Scorpio",
+      sanskritName: "Vrishchika",
+      direction: "East",
+      relation: "Rising Gate",
+      description: "The mystical oceanic snake-energy preparing to plunge Libra's partnerships into profound transformation."
+    }
+  ],
+  "Scorpio": [
+    {
+      name: "Ophiuchus",
+      sanskritName: "Bhujanga-Dhara",
+      direction: "Directly North",
+      relation: "Zenith Climax",
+      description: "The legendary serpent bearer holding therapeutic knowledge, healing deep memory fragments directly overhead."
+    },
+    {
+      name: "Serpens Cauda",
+      sanskritName: "Sarpa-Puchha",
+      direction: "Northeast",
+      relation: "Overhead Neighbor",
+      description: "The tail of the stellar serpent, coding deep cryptographic cycles and resilience under pressure."
+    },
+    {
+      name: "Libra",
+      sanskritName: "Tula",
+      direction: "West",
+      relation: "Fading Gate",
+      description: "The external diplomatic contract resting west, letting Scorpio search for internal, intense truths."
+    },
+    {
+      name: "Sagittarius",
+      sanskritName: "Dhanu",
+      direction: "East",
+      relation: "Rising Gate",
+      description: "The optimistic archer of philosophical synthesis rising to elevate Scorpio's hidden discoveries."
+    }
+  ],
+  "Sagittarius": [
+    {
+      name: "Aquila",
+      sanskritName: "Garuda",
+      direction: "Directly North",
+      relation: "Zenith Climax",
+      description: "The majestic soaring eagle, representing high-altitude foresight and carrying messages of natural law overhead."
+    },
+    {
+      name: "Ophiuchus",
+      sanskritName: "Bhujanga-Dhara",
+      direction: "Northwest",
+      relation: "Overhead Neighbor",
+      description: "The great snake tamer resting northwest, bringing investigative healing and wisdom."
+    },
+    {
+      name: "Scorpio",
+      sanskritName: "Vrishchika",
+      direction: "West",
+      relation: "Fading Gate",
+      description: "The dark psychoanalytic deep-well fading west as Sagittarius shoots its arrow towards broad horizons."
+    },
+    {
+      name: "Capricornus",
+      sanskritName: "Makara",
+      direction: "East",
+      relation: "Rising Gate",
+      description: "The pragmatic sea-goat of heavy grit and career structures rising to manifest Sagittarius' visions."
+    }
+  ],
+  "Capricornus": [
+    {
+      name: "Aquila",
+      sanskritName: "Garuda",
+      direction: "Directly North",
+      relation: "Zenith Climax",
+      description: "The eagle flying at zenith altitudes, offering strategic aerial views to guide Capricorn's persistent climbs."
+    },
+    {
+      name: "Delphinus",
+      sanskritName: "Shishumara",
+      direction: "Northeast",
+      relation: "Overhead Neighbor",
+      description: "The playful, highly coordinated dolphin jumping above, balancing Capricorn's heavy work with group spark."
+    },
+    {
+      name: "Sagittarius",
+      sanskritName: "Dhanu",
+      direction: "West",
+      relation: "Fading Gate",
+      description: "The vast optimistic philosophy wrapping up in the west, handing over to concrete material build-cycles."
+    },
+    {
+      name: "Aquarius",
+      sanskritName: "Kumbha",
+      direction: "East",
+      relation: "Rising Gate",
+      description: "The decentralized humanitarian mesh preparing to scale Capricorn's structured frameworks."
+    }
+  ],
+  "Aquarius": [
+    {
+      name: "Pegasus",
+      sanskritName: "Uchchaihshravas",
+      direction: "Directly North",
+      relation: "Zenith Climax",
+      description: "The divine winged horse soaring high overhead, carrying the pitcher's knowledge to high-dimensional designs."
+    },
+    {
+      name: "Equuleus",
+      sanskritName: "Dadhi-Vahana",
+      direction: "Northwest",
+      relation: "Overhead Neighbor",
+      description: "The little horse of swift mental response and coordination, guiding rapid communication pipelines."
+    },
+    {
+      name: "Capricornus",
+      sanskritName: "Makara",
+      direction: "West",
+      relation: "Fading Gate",
+      description: "The rigid vertical hierarchy of Saturn setting west to invite free peer-to-peer data flow."
+    },
+    {
+      name: "Pisces",
+      sanskritName: "Meena",
+      direction: "East",
+      relation: "Rising Gate",
+      description: "The boundless oceanic reservoir of transcendental dreams rising to crown Aquarius' logical designs."
+    }
+  ],
+  "Pisces": [
+    {
+      name: "Andromeda",
+      sanskritName: "Devayani",
+      direction: "Directly North",
+      relation: "Zenith Climax",
+      description: "Chained Princess signifying deep patience, spiritual rescue, and unlocking of soul blockades directly overhead."
+    },
+    {
+      name: "Pegasus",
+      sanskritName: "Uchchaihshravas",
+      direction: "Northwest",
+      relation: "Overhead Neighbor",
+      description: "The soaring celestial wing-steed setting northwest, bringing down abstract poetic and cosmic visions."
+    },
+    {
+      name: "Aquarius",
+      sanskritName: "Kumbha",
+      direction: "West",
+      relation: "Fading Gate",
+      description: "The large humanitarian networks fading west, shifting focus toward deep solitary meditation and Samadhi."
+    },
+    {
+      name: "Aries",
+      sanskritName: "Mesha",
+      direction: "East",
+      relation: "Rising Gate",
+      description: "The fiery spark of initiating executive action preparing to reboot the entire structural cosmic timeline."
+    }
+  ]
+};
+
 export function getLocalSiderealTime(date: Date, lng: number): number {
   const J2000 = new Date('2000-01-01T12:00:00Z').getTime();
   const diffMs = date.getTime() - J2000;
