@@ -17,12 +17,12 @@ export interface MoonData {
   moonTransit?: Date;
   peakIllumination: number;
   peakIlluminationTime: Date;
+  cyclePosition: number;
 }
 
 export function getMoonData(date: Date = new Date(), lat?: number, lng?: number): MoonData {
   const msPerDay = 24 * 60 * 60 * 1000;
-  const daysSinceNewMoon = (date.getTime() - KNOWN_NEW_MOON) / msPerDay;
-  const cyclePosition = (daysSinceNewMoon % LUNAR_MONTH) / LUNAR_MONTH;
+  const cyclePosition = SunCalc.getMoonIllumination(date).phase;
   
   // Phase angle
   const phaseAngle = cyclePosition * 2 * Math.PI;
@@ -74,8 +74,7 @@ export function getMoonData(date: Date = new Date(), lat?: number, lng?: number)
 
   for (let h = 0; h <= 24; h++) {
     const sampleDate = new Date(startOfDay.getTime() + h * 60 * 60 * 1000);
-    const sampleDaysSinceNewMoon = (sampleDate.getTime() - KNOWN_NEW_MOON) / msPerDay;
-    const sampleCyclePosition = (sampleDaysSinceNewMoon % LUNAR_MONTH) / LUNAR_MONTH;
+    const sampleCyclePosition = SunCalc.getMoonIllumination(sampleDate).phase;
     const samplePhaseAngle = sampleCyclePosition * 2 * Math.PI;
     const sampleIllumination = (1 - Math.cos(samplePhaseAngle)) / 2;
     
@@ -85,7 +84,7 @@ export function getMoonData(date: Date = new Date(), lat?: number, lng?: number)
     }
   }
 
-  return { illumination, phaseName, isWaxing, moonrise, moonset, moonTransit, peakIllumination, peakIlluminationTime };
+  return { illumination, phaseName, isWaxing, moonrise, moonset, moonTransit, peakIllumination, peakIlluminationTime, cyclePosition };
 }
 
 export interface ConstellationDetails {
@@ -1502,5 +1501,260 @@ export const LUNA_ADVICE: Record<string, LunaAdvice> = {
     beneficial: "Ultimate time for supreme spiritual surrender (Pranidhana), meditative isolation, dream journaling, and transcendent artistic design. Auspicious for visiting sacred waters, visiting retreat spots, and compassionate deeds."
   }
 };
+
+export interface TithiDetails {
+  index: number;
+  name: string;
+  paksha: "Shukla" | "Krishna";
+  fullName: string;
+  sanskritName: string;
+  englishTranslation: string;
+}
+
+export function getTithiDetails(cyclePosition: number): TithiDetails {
+  const tithiIndex = (Math.floor(cyclePosition * 30) + 1) % 30;
+
+  const tithiNames = [
+    "Amavasya", // 0
+    "Pratipada", // 1
+    "Dwitiya", // 2
+    "Tritiya", // 3
+    "Chaturthi", // 4
+    "Panchami", // 5
+    "Shasthi", // 6
+    "Saptami", // 7
+    "Ashtami", // 8
+    "Navami", // 9
+    "Dashami", // 10
+    "Ekadashi", // 11
+    "Dwadashi", // 12
+    "Trayodashi", // 13
+    "Chaturdashi", // 14
+    "Purnima", // 15
+    "Pratipada", // 16
+    "Dwitiya", // 17
+    "Tritiya", // 18
+    "Chaturthi", // 19
+    "Panchami", // 20
+    "Shasthi", // 21
+    "Saptami", // 22
+    "Ashtami", // 23
+    "Navami", // 24
+    "Dashami", // 25
+    "Ekadashi", // 26
+    "Dwadashi", // 27
+    "Trayodashi", // 28
+    "Chaturdashi" // 29
+  ];
+
+  const sanskritNames = [
+    "अमावास्या", // 0
+    "प्रतिपदा", // 1
+    "द्वितीया", // 2
+    "तृतीया", // 3
+    "चतुर्थी", // 4
+    "पञ्चमी", // 5
+    "षष्ठी", // 6
+    "सप्तमी", // 7
+    "अष्टमी", // 8
+    "नवमी", // 9
+    "दशमी", // 10
+    "एकादशी", // 11
+    "द्वादशी", // 12
+    "त्रयोदशी", // 13
+    "चतुर्दशी", // 14
+    "पूर्णिमा", // 15
+    "प्रतिपदा", // 16
+    "द्वितीया", // 17
+    "तृतीया", // 18
+    "चतुर्थी", // 19
+    "पञ्चमी", // 20
+    "षष्ठी", // 21
+    "सप्तमी", // 22
+    "अष्टमी", // 23
+    "नवमी", // 24
+    "दशमी", // 25
+    "एकादशी", // 26
+    "द्वादशी", // 27
+    "त्रयोदशी", // 28
+    "चतुर्दशी" // 29
+  ];
+
+  const translations = [
+    "New Moon Day (Dissolution & Introspection)",
+    "First Day (Initiation & Self-Will)",
+    "Second Day (Consolidation & Memory)",
+    "Third Day (Manifestation & Wisdom)",
+    "Fourth Day (Obstacle Dissolution)",
+    "Fifth Day (Knowledge & Sacred Studies)",
+    "Sixth Day (Discipline & Spiritual Cleanliness)",
+    "Seventh Day (Universal Order & Righteousness)",
+    "Eighth Day (Courage, Devotion, Transformation)",
+    "Ninth Day (Divine Protection & Healing)",
+    "Tenth Day (Sovereignty & Complete Integration)",
+    "Eleventh Day (High Meditation & Detached Mind)",
+    "Twelfth Day (Nourishment & Spiritual Abundance)",
+    "Thirteenth Day (Unified Harmony & Beauty)",
+    "Fourteenth Day (Passage, Release, Final Cleansing)",
+    "Full Moon Day (Peak Radiance & Wholeness)"
+  ];
+
+  const paksha = tithiIndex >= 1 && tithiIndex <= 15 ? "Shukla" : "Krishna";
+  const name = tithiNames[tithiIndex];
+  const sanskritName = sanskritNames[tithiIndex];
+  
+  let fullName = "";
+  let englishTranslation = "";
+
+  if (tithiIndex === 0) {
+    fullName = "Amavasya";
+    englishTranslation = translations[0];
+  } else if (tithiIndex === 15) {
+    fullName = "Purnima";
+    englishTranslation = translations[15];
+  } else {
+    fullName = `${paksha} ${name}`;
+    const descIndex = tithiIndex > 15 ? tithiIndex - 15 : tithiIndex;
+    englishTranslation = `${paksha === "Shukla" ? "Waxing" : "Waning"} (${paksha}) — ${translations[descIndex] || ""}`;
+  }
+
+  return {
+    index: tithiIndex,
+    name,
+    paksha,
+    fullName,
+    sanskritName,
+    englishTranslation
+  };
+}
+
+export interface NepaliDateDetails {
+  year: number;
+  month: number;
+  monthName: string;
+  monthNameNepali: string;
+  day: number;
+  dayOfWeekEnglish: string;
+  dayOfWeekNepali: string;
+  formattedBS: string;
+  formattedBSNepali: string;
+}
+
+export function getNepaliDate(date: Date = new Date()): NepaliDateDetails {
+  const nepaliMonths = [
+    "Baishakh", "Jestha", "Ashadh", "Shrawan", "Bhadra", "Ashwin",
+    "Kartik", "Mangsir", "Poush", "Magh", "Phalgun", "Chaitra"
+  ];
+  
+  const nepaliMonthsDetailed = [
+    "वैशाख", "जेठ", "असार", "साउन", "भदौ", "असोज",
+    "कात्तिक", "मंसिर", "पुस", "माघ", "फागुन", "चैत"
+  ];
+
+  const nepaliDigits: Record<string, string> = {
+    '0': '०', '1': '१', '2': '२', '3': '३', '4': '४', '5': '५', '6': '६', '7': '७', '8': '८', '9': '९'
+  };
+
+  const toNepaliNumber = (num: number): string => {
+    return num.toString().split('').map(digit => nepaliDigits[digit] || digit).join('');
+  };
+
+  const weekdaysEnglish = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
+  const weekdaysNepali = ["आइतबार", "सोमबार", "मंगलबार", "बुधबार", "बिहीबार", "शुक्रबार", "शनिबार"];
+
+  const bsCalendarTable: Record<number, { startGregorian: string; months: number[] }> = {
+    2080: {
+      startGregorian: "2023-04-14",
+      months: [31, 32, 31, 31, 31, 31, 30, 29, 30, 29, 30, 30]
+    },
+    2081: {
+      startGregorian: "2024-04-13",
+      months: [31, 31, 32, 32, 31, 30, 30, 29, 29, 30, 30, 30]
+    },
+    2082: {
+      startGregorian: "2025-04-14",
+      months: [30, 32, 31, 32, 31, 30, 30, 29, 30, 29, 30, 30]
+    },
+    2083: {
+      startGregorian: "2026-04-14",
+      months: [31, 31, 31, 32, 31, 31, 30, 29, 30, 29, 30, 30]
+    },
+    2084: {
+      startGregorian: "2027-04-14",
+      months: [31, 31, 31, 32, 31, 31, 30, 30, 29, 30, 29, 30]
+    },
+    2085: {
+      startGregorian: "2028-04-13",
+      months: [31, 32, 31, 32, 31, 30, 30, 30, 29, 29, 30, 30]
+    },
+    2086: {
+      startGregorian: "2029-04-13",
+      months: [31, 31, 32, 32, 31, 30, 30, 30, 29, 30, 29, 30]
+    }
+  };
+
+  const targetTime = new Date(date);
+  targetTime.setHours(0, 0, 0, 0);
+
+  let bsYear = 2083;
+  for (const yearStr of Object.keys(bsCalendarTable)) {
+    const yr = parseInt(yearStr);
+    const yrData = bsCalendarTable[yr];
+    const startDate = new Date(yrData.startGregorian);
+    startDate.setHours(0, 0, 0, 0);
+    
+    const totalDays = yrData.months.reduce((sum, val) => sum + val, 0);
+    const endDate = new Date(startDate.getTime() + (totalDays - 1) * 24 * 60 * 60 * 1000);
+    endDate.setHours(23, 59, 59, 999);
+
+    if (targetTime >= startDate && targetTime <= endDate) {
+      bsYear = yr;
+      break;
+    }
+  }
+
+  const yearData = bsCalendarTable[bsYear] || bsCalendarTable[2083];
+  const startDate = new Date(yearData.startGregorian);
+  startDate.setHours(0, 0, 0, 0);
+
+  const diffTime = targetTime.getTime() - startDate.getTime();
+  const diffDays = Math.round(diffTime / (24 * 60 * 60 * 1000));
+
+  let remainingDays = diffDays;
+  let bsMonthIndex = 0;
+  let bsDay = 1;
+
+  for (let m = 0; m < 12; m++) {
+    const daysInMonth = yearData.months[m];
+    if (remainingDays < daysInMonth) {
+      bsMonthIndex = m;
+      bsDay = remainingDays + 1;
+      break;
+    }
+    remainingDays -= daysInMonth;
+  }
+
+  const monthName = nepaliMonths[bsMonthIndex];
+  const monthNameNepali = nepaliMonthsDetailed[bsMonthIndex];
+
+  const weekdayIndex = date.getDay();
+  const dayOfWeekEnglish = weekdaysEnglish[weekdayIndex];
+  const dayOfWeekNepali = weekdaysNepali[weekdayIndex];
+
+  const formattedBS = `${monthName} ${bsDay}, ${bsYear}`;
+  const formattedBSNepali = `${toNepaliNumber(bsDay)} ${monthNameNepali}, ${toNepaliNumber(bsYear)}`;
+
+  return {
+    year: bsYear,
+    month: bsMonthIndex + 1,
+    monthName,
+    monthNameNepali,
+    day: bsDay,
+    dayOfWeekEnglish,
+    dayOfWeekNepali,
+    formattedBS,
+    formattedBSNepali
+  };
+}
 
 

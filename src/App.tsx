@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { Moon, Sun, MapPin, Loader2, Info, RefreshCw, Compass } from 'lucide-react';
-import { getMoonData, MoonData, getMoonZodiacConstellation, ConstellationDetails, ZODIAC_SURROUNDINGS, LUNA_ADVICE } from './utils/astro';
+import { getMoonData, MoonData, getMoonZodiacConstellation, ConstellationDetails, ZODIAC_SURROUNDINGS, LUNA_ADVICE, getTithiDetails, getNepaliDate, TithiDetails, NepaliDateDetails } from './utils/astro';
 import { getCurrentMuhurta, Muhurta, MUHURTAS } from './utils/vedic';
 
 export default function App() {
@@ -11,6 +11,8 @@ export default function App() {
   const [sunrise, setSunrise] = useState<Date | null>(null);
   const [sunset, setSunset] = useState<Date | null>(null);
   const [moonData, setMoonData] = useState<MoonData | null>(null);
+  const [tithi, setTithi] = useState<TithiDetails | null>(null);
+  const [nepaliDate, setNepaliDate] = useState<NepaliDateDetails | null>(null);
   const [currentMuhurta, setCurrentMuhurta] = useState<Muhurta | null>(null);
   const [synergy, setSynergy] = useState<{ status: string; percentage: number; situation: string; advice: string } | null>(null);
 
@@ -47,6 +49,12 @@ export default function App() {
       // Moon Data
       const md = getMoonData(now, location?.lat, location?.lng);
       setMoonData(md);
+
+      const tithiInfo = getTithiDetails(md.cyclePosition);
+      setTithi(tithiInfo);
+
+      const nepDate = getNepaliDate(now);
+      setNepaliDate(nepDate);
 
       // Sunrise/Muhurta base
       let sr = sunrise;
@@ -317,7 +325,7 @@ export default function App() {
                   animate={{ opacity: 1, scale: 1 }}
                   className="flex flex-col items-center"
                 >
-                  <div className="relative w-64 h-64 border border-white/10 rounded-full flex items-center justify-center mb-10 group">
+                  <div className="relative w-64 h-64 border border-white/10 rounded-full flex items-center justify-center mb-6 group">
                     <div className={`absolute inset-0 border border-dashed rounded-full animate-[spin_60s_linear_infinite] ${
                       synergy?.status === 'Good' ? 'border-gold/30' : synergy?.status === 'Less Favourable' ? 'border-orange-500/30' : 'border-white/10'
                     }`} />
@@ -340,6 +348,41 @@ export default function App() {
                       <div className="absolute inset-0 bg-dark-bg/60 mix-blend-multiply" />
                     </div>
                   </div>
+
+                  {/* Tithi and Bikram Sambat Calendar Badge Panel */}
+                  {tithi && nepaliDate && (
+                    <div id="nepali-astro-calendar-panel" className="flex flex-col items-center gap-2 mb-8 px-5 py-3.5 bg-white/[0.03] border border-white/10 rounded-2xl max-w-sm mx-auto shadow-xl backdrop-blur-md">
+                      {/* Bikram Sambat Date */}
+                      <div className="flex items-center gap-2 hover:opacity-80 transition-opacity duration-300 cursor-help" title={`Bikram Sambat: ${nepaliDate.formattedBS} (${nepaliDate.formattedBSNepali})`}>
+                        <span className="text-[10px] text-zinc-500 font-mono tracking-widest uppercase border border-white/10 px-1 py-0.5 rounded">B.S.</span>
+                        <span className="text-sm text-gold font-bold tracking-wider">
+                          {nepaliDate.formattedBS}
+                        </span>
+                      </div>
+
+                      {/* Weekday & Tithi Row */}
+                      <div className="flex flex-wrap items-center justify-center gap-2 text-xs">
+                        {/* Day of Week */}
+                        <div className="flex items-center gap-1 bg-white/5 border border-white/5 px-2 py-0.5 rounded text-zinc-300" title={nepaliDate.dayOfWeekNepali}>
+                          <span className="font-medium">{nepaliDate.dayOfWeekEnglish}</span>
+                        </div>
+
+                        <span className="text-zinc-700 select-none">•</span>
+
+                        {/* Tithi */}
+                        <div className="flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-purple-950/40 border border-purple-900/40 text-purple-200 shadow-sm">
+                          <span className="text-[9px] text-purple-400 uppercase tracking-widest font-semibold font-mono">Tithi:</span>
+                          <span className="font-semibold text-[13px]">{tithi.fullName}</span>
+                          <span className="text-[10px] text-purple-300 italic font-medium">({tithi.sanskritName})</span>
+                        </div>
+                      </div>
+
+                      {/* Tithi Intuition Indicator */}
+                      <p className="text-[10px] text-zinc-400 font-light italic text-center max-w-[280px] leading-relaxed mt-1 border-t border-white/5 pt-1.5 w-full">
+                        "{tithi.englishTranslation}"
+                      </p>
+                    </div>
+                  )}
 
                   <span className="text-[11px] font-medium tracking-[0.4em] uppercase text-gold mb-4">Lunar-Muhurta Synergy</span>
                   <h2 className={`font-serif italic text-6xl md:text-7xl font-black transition-colors duration-700 drop-shadow-2xl mb-2 tracking-tighter ${
