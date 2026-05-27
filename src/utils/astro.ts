@@ -1502,6 +1502,28 @@ export const LUNA_ADVICE: Record<string, LunaAdvice> = {
   }
 };
 
+export interface OneWordTransitDetails {
+  impact: string;
+  precaution: string;
+  task: string;
+}
+
+export const TRANSIT_ONE_WORDS: Record<string, OneWordTransitDetails> = {
+  "Aries": { impact: "Initiative", precaution: "Impulsivity", task: "Action" },
+  "Taurus": { impact: "Stability", precaution: "Stubbornness", task: "Consolidation" },
+  "Gemini": { impact: "Curiosity", precaution: "Scattering", task: "Study" },
+  "Cancer": { impact: "Intuition", precaution: "Sensitivity", task: "Nurturing" },
+  "Leo": { impact: "Confidence", precaution: "Ego", task: "Leadership" },
+  "Virgo": { impact: "Precision", precaution: "Overanalysis", task: "Organization" },
+  "Libra": { impact: "Diplomacy", precaution: "Indecision", task: "Harmony" },
+  "Scorpio": { impact: "Willpower", precaution: "Secrecy", task: "Transformation" },
+  "Sagittarius": { impact: "Optimism", precaution: "Dogmatism", task: "Philosophy" },
+  "Capricorn": { impact: "Discipline", precaution: "Rigidity", task: "Structure" },
+  "Aquarius": { impact: "Originality", precaution: "Detachment", task: "Innovation" },
+  "Pisces": { impact: "Compassion", precaution: "Escapism", task: "Meditation" }
+};
+
+
 export interface TithiDetails {
   index: number;
   name: string;

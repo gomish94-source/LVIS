@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { Moon, Sun, MapPin, Loader2, Info, RefreshCw, Compass } from 'lucide-react';
-import { getMoonData, MoonData, getMoonZodiacConstellation, ConstellationDetails, ZODIAC_SURROUNDINGS, LUNA_ADVICE, getTithiDetails, getNepaliDate, TithiDetails, NepaliDateDetails } from './utils/astro';
+import { getMoonData, MoonData, getMoonZodiacConstellation, ConstellationDetails, ZODIAC_SURROUNDINGS, LUNA_ADVICE, getNepaliDate, NepaliDateDetails, TRANSIT_ONE_WORDS, CONSTELLATIONS } from './utils/astro';
 import { getCurrentMuhurta, Muhurta, MUHURTAS } from './utils/vedic';
 
 export default function App() {
@@ -11,7 +11,6 @@ export default function App() {
   const [sunrise, setSunrise] = useState<Date | null>(null);
   const [sunset, setSunset] = useState<Date | null>(null);
   const [moonData, setMoonData] = useState<MoonData | null>(null);
-  const [tithi, setTithi] = useState<TithiDetails | null>(null);
   const [nepaliDate, setNepaliDate] = useState<NepaliDateDetails | null>(null);
   const [currentMuhurta, setCurrentMuhurta] = useState<Muhurta | null>(null);
   const [synergy, setSynergy] = useState<{ status: string; percentage: number; situation: string; advice: string } | null>(null);
@@ -20,7 +19,6 @@ export default function App() {
   const [moonTransitPast, setMoonTransitPast] = useState<{ constellation: ConstellationDetails; longitude: number; startTime: Date; endTime: Date } | null>(null);
   const [moonTransitUpcoming, setMoonTransitUpcoming] = useState<{ constellation: ConstellationDetails; longitude: number; startTime: Date; endTime: Date } | null>(null);
 
-  const [activeAdviceTab, setActiveAdviceTab] = useState<'overview' | 'cognitive' | 'precaution' | 'beneficial'>('overview');
   const [isMirrorFlipped, setIsMirrorFlipped] = useState(false);
 
   const fetchAstroData = async (lat: number, lng: number) => {
@@ -49,9 +47,6 @@ export default function App() {
       // Moon Data
       const md = getMoonData(now, location?.lat, location?.lng);
       setMoonData(md);
-
-      const tithiInfo = getTithiDetails(md.cyclePosition);
-      setTithi(tithiInfo);
 
       const nepDate = getNepaliDate(now);
       setNepaliDate(nepDate);
@@ -113,15 +108,32 @@ export default function App() {
       const presMoonTransit = getMoonZodiacConstellation(now);
       setMoonTransitPresent(presMoonTransit);
 
-      // Past Moon Constellation (1 second before entering the active sign)
-      const pastTime = new Date(presMoonTransit.startTime.getTime() - 1000);
-      const pastMoonTransit = getMoonZodiacConstellation(pastTime);
-      setMoonTransitPast(pastMoonTransit);
+      // Find index of present constellation
+      const presIndex = CONSTELLATIONS.findIndex(c => c.name === presMoonTransit.constellation.name);
 
-      // Upcoming Moon Constellation (1 second after exiting the active sign)
-      const upcomingTime = new Date(presMoonTransit.endTime.getTime() + 1000);
-      const upcomingMoonTransit = getMoonZodiacConstellation(upcomingTime);
-      setMoonTransitUpcoming(upcomingMoonTransit);
+      // Past Moon Constellation (calculated as preceding sign relative to current to guarantee absolute astrological order, e.g., Virgo before Libra)
+      const pastIndex = (presIndex !== -1) ? (presIndex - 1 + 12) % 12 : 5;
+      const pastConstellation = CONSTELLATIONS[pastIndex];
+      const pastEndTime = presMoonTransit.startTime;
+      const pastStartTime = new Date(pastEndTime.getTime() - 54.58 * 60 * 60 * 1000);
+      setMoonTransitPast({
+        constellation: pastConstellation,
+        longitude: pastIndex * 30 + 15,
+        startTime: pastStartTime,
+        endTime: pastEndTime,
+      });
+
+      // Upcoming Moon Constellation (calculated as succeeding sign relative to current to guarantee absolute astronomical progression, e.g., Scorpio after Libra)
+      const upcomingIndex = (presIndex !== -1) ? (presIndex + 1) % 12 : 7;
+      const upcomingConstellation = CONSTELLATIONS[upcomingIndex];
+      const upcomingStartTime = presMoonTransit.endTime;
+      const upcomingEndTime = new Date(upcomingStartTime.getTime() + 54.58 * 60 * 60 * 1000);
+      setMoonTransitUpcoming({
+        constellation: upcomingConstellation,
+        longitude: upcomingIndex * 30 + 15,
+        startTime: upcomingStartTime,
+        endTime: upcomingEndTime,
+      });
 
     } catch (err) {
       console.error("Calculate synergy error", err);
@@ -349,38 +361,19 @@ export default function App() {
                     </div>
                   </div>
 
-                  {/* Tithi and Bikram Sambat Calendar Badge Panel */}
-                  {tithi && nepaliDate && (
-                    <div id="nepali-astro-calendar-panel" className="flex flex-col items-center gap-2 mb-8 px-5 py-3.5 bg-white/[0.03] border border-white/10 rounded-2xl max-w-sm mx-auto shadow-xl backdrop-blur-md">
+                  {/* Bikram Sambat Calendar Badge Panel */}
+                  {nepaliDate && (
+                    <div id="nepali-astro-calendar-panel" className="flex items-center justify-center gap-3.5 mb-8 px-5 py-2 bg-white/[0.03] border border-white/10 rounded-full max-w-sm mx-auto shadow-xl backdrop-blur-md">
                       {/* Bikram Sambat Date */}
-                      <div className="flex items-center gap-2 hover:opacity-80 transition-opacity duration-300 cursor-help" title={`Bikram Sambat: ${nepaliDate.formattedBS} (${nepaliDate.formattedBSNepali})`}>
-                        <span className="text-[10px] text-zinc-500 font-mono tracking-widest uppercase border border-white/10 px-1 py-0.5 rounded">B.S.</span>
-                        <span className="text-sm text-gold font-bold tracking-wider">
-                          {nepaliDate.formattedBS}
-                        </span>
-                      </div>
-
-                      {/* Weekday & Tithi Row */}
-                      <div className="flex flex-wrap items-center justify-center gap-2 text-xs">
-                        {/* Day of Week */}
-                        <div className="flex items-center gap-1 bg-white/5 border border-white/5 px-2 py-0.5 rounded text-zinc-300" title={nepaliDate.dayOfWeekNepali}>
-                          <span className="font-medium">{nepaliDate.dayOfWeekEnglish}</span>
-                        </div>
-
-                        <span className="text-zinc-700 select-none">•</span>
-
-                        {/* Tithi */}
-                        <div className="flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-purple-950/40 border border-purple-900/40 text-purple-200 shadow-sm">
-                          <span className="text-[9px] text-purple-400 uppercase tracking-widest font-semibold font-mono">Tithi:</span>
-                          <span className="font-semibold text-[13px]">{tithi.fullName}</span>
-                          <span className="text-[10px] text-purple-300 italic font-medium">({tithi.sanskritName})</span>
-                        </div>
-                      </div>
-
-                      {/* Tithi Intuition Indicator */}
-                      <p className="text-[10px] text-zinc-400 font-light italic text-center max-w-[280px] leading-relaxed mt-1 border-t border-white/5 pt-1.5 w-full">
-                        "{tithi.englishTranslation}"
-                      </p>
+                      <span className="text-[10px] text-zinc-500 font-mono tracking-widest uppercase border border-white/10 px-1.5 py-0.5 rounded">B.S.</span>
+                      <span className="text-sm text-gold font-bold tracking-wider cursor-help" title={`BS: ${nepaliDate.formattedBS} (${nepaliDate.formattedBSNepali})`}>
+                        {nepaliDate.formattedBS}
+                      </span>
+                      <span className="text-zinc-600 font-light select-none">•</span>
+                      {/* Weekday */}
+                      <span className="text-xs text-zinc-300 font-medium cursor-help" title={nepaliDate.dayOfWeekNepali}>
+                        {nepaliDate.dayOfWeekEnglish}
+                      </span>
                     </div>
                   )}
 
@@ -537,11 +530,25 @@ export default function App() {
                       {moonTransitUpcoming.startTime.toLocaleDateString([], { month: 'short', day: '2-digit' }) + " " + moonTransitUpcoming.startTime.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })} – {moonTransitUpcoming.endTime.toLocaleDateString([], { month: 'short', day: '2-digit' }) + " " + moonTransitUpcoming.endTime.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                     </div>
                   </div>
-                  <div className="mt-6">
-                    <div className="text-[9px] text-emerald-400/70 uppercase tracking-widest border-t border-emerald-500/10 pt-3">Pre-Aligning Wave</div>
-                    <p className="text-[11px] text-white/50 italic mt-1 leading-relaxed">
-                      {moonTransitUpcoming.constellation.thinkingImpact}
-                    </p>
+                  <div className="mt-4 pt-4 border-t border-emerald-500/10 space-y-2.5">
+                    <div className="flex justify-between items-center text-[10px]">
+                      <span className="text-emerald-400/60 uppercase tracking-wider font-medium">Impact</span>
+                      <span className="text-white font-mono uppercase font-bold text-[10px] bg-white/5 px-2 py-0.5 rounded border border-white/5 text-right max-w-[140px] truncate">
+                        {TRANSIT_ONE_WORDS[moonTransitUpcoming.constellation.name]?.impact}
+                      </span>
+                    </div>
+                    <div className="flex justify-between items-center text-[10px]">
+                      <span className="text-red-400/60 uppercase tracking-wider font-medium">Precaution</span>
+                      <span className="text-red-300 font-mono uppercase font-bold text-[10px] bg-red-500/5 px-2 py-0.5 rounded border border-red-500/10 text-right max-w-[140px] truncate">
+                        {TRANSIT_ONE_WORDS[moonTransitUpcoming.constellation.name]?.precaution}
+                      </span>
+                    </div>
+                    <div className="flex justify-between items-center text-[10px]">
+                      <span className="text-emerald-400/60 uppercase tracking-wider font-medium">Task</span>
+                      <span className="text-emerald-300 font-mono uppercase font-bold text-[10px] bg-emerald-500/5 px-2 py-0.5 rounded border border-emerald-500/10 text-right max-w-[140px] truncate">
+                        {TRANSIT_ONE_WORDS[moonTransitUpcoming.constellation.name]?.task}
+                      </span>
+                    </div>
                   </div>
                 </div>
               )}
@@ -567,118 +574,45 @@ export default function App() {
                         <span className="text-[9px] uppercase px-2 py-0.5 rounded bg-gold/5 text-gold font-mono font-semibold">Lon Range: {Math.floor(moonTransitPresent.longitude / 30) * 30}° – {Math.floor(moonTransitPresent.longitude / 30) * 30 + 30}°</span>
                       </div>
  
-                      {/* Interactive Advice Tabs */}
-                      <div className="flex flex-wrap border-b border-white/10 mt-6 gap-2 pb-0.5">
-                        {[
-                          { id: 'overview', label: 'Celestial Overview' },
-                          { id: 'cognitive', label: 'Mental Dynamics' },
-                          { id: 'precaution', label: 'Precautions' },
-                          { id: 'beneficial', label: 'Beneficial Actions' }
-                        ].map((tab) => (
-                          <button
-                            key={tab.id}
-                            id={`tab-btn-${tab.id}`}
-                            onClick={() => setActiveAdviceTab(tab.id as any)}
-                            className={`px-3 py-1.5 text-[9px] font-medium tracking-wider uppercase transition-all duration-300 border-b-2 -mb-0.5 ${
-                              activeAdviceTab === tab.id
-                                ? 'border-gold text-gold font-bold bg-gold/5 rounded-t-md'
-                                : 'border-transparent text-white/50 hover:text-white'
-                            }`}
-                          >
-                            {tab.label}
-                          </button>
-                        ))}
+                      {/* Astrological & Vedic Celestial Alignment */}
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6">
+                        <div className="space-y-1">
+                          <span className="text-[10px] text-amber-300 font-medium uppercase tracking-widest block">Vedic Lunar View</span>
+                          <p className="text-[11px] text-zinc-300 leading-relaxed font-light">
+                            {moonTransitPresent.constellation.vedicView}
+                          </p>
+                        </div>
+                        <div className="space-y-1 border-t md:border-t-0 md:border-l border-white/5 pt-4 md:pt-0 md:pl-4">
+                          <span className="text-[10px] text-blue-300 font-medium uppercase tracking-widest block">Astrological Influence</span>
+                          <p className="text-[11px] text-zinc-300 leading-relaxed font-light">
+                            {moonTransitPresent.constellation.astrologicalView}
+                          </p>
+                        </div>
                       </div>
- 
-                      {/* Tab Contents */}
-                      <div className="mt-6 min-h-[160px] flex flex-col justify-between">
-                        <AnimatePresence mode="wait">
-                          {activeAdviceTab === 'overview' && (
-                            <motion.div
-                              key="overview"
-                              initial={{ opacity: 0, y: 5 }}
-                              animate={{ opacity: 1, y: 0 }}
-                              exit={{ opacity: 0, y: -5 }}
-                              transition={{ duration: 0.2 }}
-                              className="grid grid-cols-1 md:grid-cols-2 gap-6"
-                            >
-                              <div className="space-y-1">
-                                <span className="text-[10px] text-amber-300 font-medium uppercase tracking-widest block">Vedic Lunar View</span>
-                                <p className="text-[11px] text-zinc-300 leading-relaxed font-light">
-                                  {moonTransitPresent.constellation.vedicView}
-                                </p>
-                              </div>
-                              <div className="space-y-1 border-t md:border-t-0 md:border-l border-white/5 pt-4 md:pt-0 md:pl-4">
-                                <span className="text-[10px] text-blue-300 font-medium uppercase tracking-widest block">Astrological Influence</span>
-                                <p className="text-[11px] text-zinc-300 leading-relaxed font-light">
-                                  {moonTransitPresent.constellation.astrologicalView}
-                                </p>
-                              </div>
-                            </motion.div>
-                          )}
- 
-                          {activeAdviceTab === 'cognitive' && (
-                            <motion.div
-                              key="cognitive"
-                              initial={{ opacity: 0, y: 5 }}
-                              animate={{ opacity: 1, y: 0 }}
-                              exit={{ opacity: 0, y: -5 }}
-                              transition={{ duration: 0.2 }}
-                              className="grid grid-cols-1 md:grid-cols-2 gap-6"
-                            >
-                              <div className="space-y-1">
-                                <span className="text-[10px] text-purple-300 font-medium uppercase tracking-widest block">Western Astrological Mind-Aspect</span>
-                                <p className="text-[11px] text-zinc-300 leading-relaxed font-sans font-light">
-                                  {moonTransitPresent.constellation.aiThinking}
-                                </p>
-                              </div>
-                              <div className="space-y-1 border-t md:border-t-0 md:border-l border-white/5 pt-4 md:pt-0 md:pl-4">
-                                <span className="text-[10px] text-emerald-300 font-medium uppercase tracking-widest block">Vedic Astrological Mind-Aspect</span>
-                                <p className="text-[11px] text-zinc-300 leading-relaxed font-light font-serif italic">
-                                  "{moonTransitPresent.constellation.thinkingImpact}"
-                                </p>
-                              </div>
-                            </motion.div>
-                          )}
- 
-                          {activeAdviceTab === 'precaution' && (
-                            <motion.div
-                              key="precaution"
-                              initial={{ opacity: 0, y: 5 }}
-                              animate={{ opacity: 1, y: 0 }}
-                              exit={{ opacity: 0, y: -5 }}
-                              transition={{ duration: 0.2 }}
-                              className="space-y-2 bg-red-950/20 border border-red-500/10 p-4 rounded-xl"
-                            >
-                              <span className="text-[10px] text-red-400 font-medium uppercase tracking-widest block flex items-center gap-1.5">
-                                <span className="w-1.5 h-1.5 bg-red-400 rounded-full animate-pulse" />
-                                Actionable Cosmic Precautions
-                              </span>
-                              <p className="text-[11px] text-red-200/80 leading-relaxed font-sans font-light">
-                                {LUNA_ADVICE[moonTransitPresent.constellation.name]?.precaution || "Proceed with general mindful vigilance."}
-                              </p>
-                            </motion.div>
-                          )}
- 
-                          {activeAdviceTab === 'beneficial' && (
-                            <motion.div
-                              key="beneficial"
-                              initial={{ opacity: 0, y: 5 }}
-                              animate={{ opacity: 1, y: 0 }}
-                              exit={{ opacity: 0, y: -5 }}
-                              transition={{ duration: 0.2 }}
-                              className="space-y-2 bg-emerald-950/20 border border-emerald-500/10 p-4 rounded-xl"
-                            >
-                              <span className="text-[10px] text-emerald-400 font-medium uppercase tracking-widest block flex items-center gap-1.5">
-                                <span className="w-1.5 h-1.5 bg-emerald-400 rounded-full animate-pulse" />
-                                Highly Aligned Activities
-                              </span>
-                              <p className="text-[11px] text-emerald-200/80 leading-relaxed font-sans font-light">
-                                {LUNA_ADVICE[moonTransitPresent.constellation.name]?.beneficial || "Perform standard creative/restful deeds."}
-                              </p>
-                            </motion.div>
-                          )}
-                        </AnimatePresence>
+
+                      {/* Aligning Frequencies Panel: One-word Impact, Precaution, and Task */}
+                      <div className="grid grid-cols-3 gap-2.5 mt-8 border-t border-white/5 pt-6">
+                        {/* Impact */}
+                        <div className="bg-purple-950/20 border border-purple-500/10 p-4 rounded-xl text-center shadow-sm hover:bg-purple-950/35 transition-all duration-300 group">
+                          <span className="text-[9px] text-purple-400 font-mono tracking-widest uppercase block font-semibold">Impact</span>
+                          <span className="text-xs sm:text-sm font-bold text-white tracking-wide block mt-1 uppercase">
+                            {TRANSIT_ONE_WORDS[moonTransitPresent.constellation.name]?.impact}
+                          </span>
+                        </div>
+                        {/* Precaution */}
+                        <div className="bg-red-950/20 border border-red-500/10 p-4 rounded-xl text-center shadow-sm hover:bg-red-950/35 transition-all duration-300 group">
+                          <span className="text-[9px] text-red-400 font-mono tracking-widest uppercase block font-semibold">Precaution</span>
+                          <span className="text-xs sm:text-sm font-bold text-red-300 tracking-wide block mt-1 uppercase">
+                            {TRANSIT_ONE_WORDS[moonTransitPresent.constellation.name]?.precaution}
+                          </span>
+                        </div>
+                        {/* Task */}
+                        <div className="bg-emerald-950/20 border border-emerald-500/10 p-4 rounded-xl text-center shadow-sm hover:bg-emerald-950/35 transition-all duration-300 group">
+                          <span className="text-[9px] text-emerald-400 font-mono tracking-widest uppercase block font-semibold">Task</span>
+                          <span className="text-xs sm:text-sm font-bold text-emerald-300 tracking-wide block mt-1 uppercase">
+                            {TRANSIT_ONE_WORDS[moonTransitPresent.constellation.name]?.task}
+                          </span>
+                        </div>
                       </div>
                     </div>
                   </div>
@@ -701,11 +635,25 @@ export default function App() {
                       {moonTransitPast.startTime.toLocaleDateString([], { month: 'short', day: '2-digit' }) + " " + moonTransitPast.startTime.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })} – {moonTransitPast.endTime.toLocaleDateString([], { month: 'short', day: '2-digit' }) + " " + moonTransitPast.endTime.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                     </div>
                   </div>
-                  <div className="mt-6">
-                    <div className="text-[9px] text-white/30 uppercase tracking-widest border-t border-white/5 pt-3">Passed Impact Field</div>
-                    <p className="text-[11px] text-white/30 italic mt-1 leading-relaxed">
-                      {moonTransitPast.constellation.thinkingImpact}
-                    </p>
+                  <div className="mt-4 pt-4 border-t border-white/5 space-y-2.5">
+                    <div className="flex justify-between items-center text-[10px]">
+                      <span className="text-white/40 uppercase tracking-wider font-medium">Past Impact</span>
+                      <span className="text-white/60 font-mono uppercase font-semibold text-[10px] bg-white/5 px-2 py-0.5 rounded border border-white/10 text-right max-w-[140px] truncate">
+                        {TRANSIT_ONE_WORDS[moonTransitPast.constellation.name]?.impact}
+                      </span>
+                    </div>
+                    <div className="flex justify-between items-center text-[10px]">
+                      <span className="text-white/40 uppercase tracking-wider font-medium">Precaution</span>
+                      <span className="text-white/50 font-mono uppercase font-semibold text-[10px] bg-white/5 px-2 py-0.5 rounded border border-white/10 text-right max-w-[140px] truncate">
+                        {TRANSIT_ONE_WORDS[moonTransitPast.constellation.name]?.precaution}
+                      </span>
+                    </div>
+                    <div className="flex justify-between items-center text-[10px]">
+                      <span className="text-white/40 uppercase tracking-wider font-medium">Task</span>
+                      <span className="text-white/60 font-mono uppercase font-semibold text-[10px] bg-white/5 px-2 py-0.5 rounded border border-white/10 text-right max-w-[140px] truncate">
+                        {TRANSIT_ONE_WORDS[moonTransitPast.constellation.name]?.task}
+                      </span>
+                    </div>
                   </div>
                 </div>
               )}
