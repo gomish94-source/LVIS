@@ -19,6 +19,64 @@ const ZODIAC_SYMBOLS: Record<string, string> = {
   "Pisces": "♓"
 };
 
+const ELEMENT_BACKGROUNDS: Record<string, string> = {
+  "Fire": "https://images.unsplash.com/photo-1610296669228-602fa827fc1f?auto=format&fit=crop&w=400&q=80",
+  "Earth": "https://images.unsplash.com/photo-1543722530-d2c3201371e7?auto=format&fit=crop&w=400&q=80",
+  "Air": "https://images.unsplash.com/photo-1506318137071-a8e063b4bec0?auto=format&fit=crop&w=400&q=80",
+  "Water": "https://images.unsplash.com/photo-1462331940025-496dfbfc7564?auto=format&fit=crop&w=400&q=80"
+};
+
+const CONSTELLATION_GEOMETRY: Record<string, { stars: Array<{x: number, y: number}>, lines: Array<[number, number]> }> = {
+  "Aries": {
+    stars: [{x: 15, y: 45}, {x: 45, y: 30}, {x: 70, y: 45}, {x: 85, y: 60}],
+    lines: [[0, 1], [1, 2], [2, 3]]
+  },
+  "Taurus": {
+    stars: [{x: 40, y: 55}, {x: 50, y: 50}, {x: 55, y: 60}, {x: 45, y: 65}, {x: 25, y: 30}, {x: 10, y: 20}, {x: 60, y: 40}, {x: 75, y: 30}, {x: 65, y: 80}, {x: 85, y: 75}],
+    lines: [[0, 1], [1, 2], [2, 3], [3, 0], [1, 4], [4, 5], [2, 6], [6, 7], [0, 8], [8, 9]]
+  },
+  "Gemini": {
+    stars: [{x: 25, y: 20}, {x: 25, y: 45}, {x: 25, y: 75}, {x: 15, y: 35}, {x: 35, y: 35}, {x: 55, y: 20}, {x: 55, y: 45}, {x: 55, y: 75}, {x: 45, y: 35}, {x: 65, y: 35}],
+    lines: [[0, 1], [1, 2], [3, 4], [5, 6], [6, 7], [8, 9], [4, 8]]
+  },
+  "Cancer": {
+    stars: [{x: 50, y: 45}, {x: 30, y: 25}, {x: 70, y: 25}, {x: 50, y: 65}, {x: 40, y: 85}, {x: 60, y: 85}],
+    lines: [[0, 1], [0, 2], [0, 3], [3, 4], [3, 5]]
+  },
+  "Leo": {
+    stars: [{x: 75, y: 45}, {x: 70, y: 30}, {x: 55, y: 25}, {x: 45, y: 30}, {x: 45, y: 45}, {x: 55, y: 55}, {x: 25, y: 60}, {x: 20, y: 75}, {x: 35, y: 80}],
+    lines: [[0, 1], [1, 2], [2, 3], [3, 4], [4, 5], [5, 6], [6, 7], [7, 8], [8, 5], [5, 0]]
+  },
+  "Virgo": {
+    stars: [{x: 50, y: 20}, {x: 35, y: 35}, {x: 30, y: 55}, {x: 60, y: 45}, {x: 55, y: 70}, {x: 75, y: 80}, {x: 80, y: 30}],
+    lines: [[0, 1], [1, 2], [1, 3], [3, 4], [4, 2], [4, 5], [3, 6]]
+  },
+  "Libra": {
+    stars: [{x: 20, y: 35}, {x: 40, y: 30}, {x: 80, y: 25}, {x: 30, y: 65}, {x: 45, y: 55}, {x: 70, y: 55}, {x: 55, y: 60}],
+    lines: [[0, 1], [1, 2], [0, 3], [3, 4], [4, 0], [2, 5], [5, 6], [6, 2]]
+  },
+  "Scorpio": {
+    stars: [{x: 30, y: 20}, {x: 50, y: 30}, {x: 70, y: 20}, {x: 50, y: 50}, {x: 45, y: 65}, {x: 55, y: 75}, {x: 70, y: 75}, {x: 78, y: 65}],
+    lines: [[0, 1], [1, 2], [1, 3], [3, 4], [4, 5], [5, 6], [6, 7]]
+  },
+  "Sagittarius": {
+    stars: [{x: 35, y: 45}, {x: 65, y: 45}, {x: 65, y: 75}, {x: 35, y: 75}, {x: 50, y: 25}, {x: 20, y: 55}, {x: 80, y: 55}],
+    lines: [[0, 1], [1, 2], [2, 3], [3, 0], [0, 4], [4, 1], [0, 5], [5, 3], [1, 6], [6, 2]]
+  },
+  "Capricorn": {
+    stars: [{x: 20, y: 30}, {x: 35, y: 65}, {x: 60, y: 70}, {x: 55, y: 35}, {x: 80, y: 45}],
+    lines: [[0, 1], [1, 2], [0, 3], [3, 4], [4, 2]]
+  },
+  "Aquarius": {
+    stars: [{x: 35, y: 25}, {x: 50, y: 30}, {x: 45, y: 45}, {x: 30, y: 55}, {x: 25, y: 75}, {x: 55, y: 65}, {x: 65, y: 80}],
+    lines: [[0, 1], [1, 2], [2, 0], [2, 3], [3, 4], [2, 5], [5, 6]]
+  },
+  "Pisces": {
+    stars: [{x: 20, y: 25}, {x: 30, y: 20}, {x: 35, y: 30}, {x: 25, y: 35}, {x: 40, y: 55}, {x: 55, y: 75}, {x: 75, y: 50}, {x: 80, y: 40}, {x: 70, y: 40}, {x: 65, y: 50}],
+    lines: [[0, 1], [1, 2], [2, 3], [3, 0], [3, 4], [4, 5], [6, 7], [7, 8], [8, 9], [9, 6], [9, 5]]
+  }
+};
+
 export default function App() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -828,12 +886,75 @@ export default function App() {
                       cardClass = "opacity-65 hover:opacity-100 transition-opacity duration-300";
                     }
 
+                    const elementBg = ELEMENT_BACKGROUNDS[item.constellation.element] || ELEMENT_BACKGROUNDS["Air"];
+                    const geom = CONSTELLATION_GEOMETRY[item.constellation.name];
+                    const svgColorClass = item.isActive 
+                      ? "text-gold/25 group-hover:text-gold/45" 
+                      : isUpcomingNext 
+                        ? "text-emerald-400/20 group-hover:text-emerald-400/40" 
+                        : isPastDirect
+                          ? "text-purple-400/15 group-hover:text-purple-400/35"
+                          : "text-white/10 group-hover:text-gold/25";
+
                     return (
                       <div 
                         key={idx} 
-                        className={`border rounded-2xl p-5 flex flex-col justify-between min-h-[220px] transition-all duration-300 hover:bg-white/[0.04] group shadow-inner ${cardClass}`}
+                        className={`relative overflow-hidden border rounded-2xl p-5 flex flex-col justify-between min-h-[220px] transition-all duration-300 hover:bg-white/[0.04] group shadow-inner ${cardClass}`}
                       >
-                        <div>
+                        {/* Background cosmic element artwork */}
+                        <div className="absolute inset-0 w-full h-full overflow-hidden rounded-2xl pointer-events-none z-0">
+                          <img 
+                            src={elementBg} 
+                            alt="" 
+                            referrerPolicy="no-referrer"
+                            className="absolute inset-0 w-full h-full object-cover opacity-[0.09] group-hover:opacity-[0.16] transition-all duration-700 ease-out group-hover:scale-105 pointer-events-none"
+                          />
+                          <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-950/20 to-transparent opacity-85 z-10" />
+                        </div>
+
+                        {/* Interactive Constellation Overlay Vector Map */}
+                        {geom && (
+                          <svg 
+                            viewBox="0 0 100 100" 
+                            className={`absolute right-3 bottom-0 w-28 h-28 pointer-events-none transition-all duration-500 ease-out z-0 transform translate-x-3 translate-y-3 group-hover:translate-x-0 group-hover:translate-y-0 group-hover:scale-110 ${svgColorClass}`}
+                          >
+                            {/* Lines connecting stars */}
+                            {geom.lines.map(([fromIdx, toIdx], lineIdx) => {
+                              const fromStar = geom.stars[fromIdx];
+                              const toStar = geom.stars[toIdx];
+                              if (!fromStar || !toStar) return null;
+                              return (
+                                <line
+                                  key={lineIdx}
+                                  x1={fromStar.x}
+                                  y1={fromStar.y}
+                                  x2={toStar.x}
+                                  y2={toStar.y}
+                                  className="stroke-current transition-all duration-500"
+                                  strokeWidth="0.85"
+                                  strokeDasharray={item.isActive ? "none" : "3,2.5"}
+                                />
+                              );
+                            })}
+                            {/* Highlighted stars */}
+                            {geom.stars.map((star, starIdx) => {
+                              // Make the first star or bright star larger/glowing dynamically
+                              const isBrightStar = starIdx === 0 || (starIdx === 4 && item.constellation.name === "Virgo");
+                              const starRadius = isBrightStar ? 2.5 : 1.6;
+                              return (
+                                <circle
+                                  key={starIdx}
+                                  cx={star.x}
+                                  cy={star.y}
+                                  r={starRadius}
+                                  className="fill-current drop-shadow-[0_0_2px_rgba(255,255,255,0.7)] group-hover:drop-shadow-[0_0_4px_rgba(212,175,55,0.95)] transition-all duration-300"
+                                />
+                              );
+                            })}
+                          </svg>
+                        )}
+
+                        <div className="relative z-10">
                           {/* Card Header */}
                           <div className="flex justify-between items-start mb-3">
                             <h4 className="text-sm font-sans font-medium text-white flex items-center gap-1.5">
@@ -853,7 +974,7 @@ export default function App() {
                         </div>
 
                         {/* Mid Parameters List */}
-                        <div className="mt-4 pt-4 border-t border-white/5 space-y-2 text-[11px]">
+                        <div className="relative z-10 mt-4 pt-4 border-t border-white/5 space-y-2 text-[11px]">
                           <div className="flex justify-between items-center">
                             <span className="text-white/40 uppercase tracking-wider font-light text-[9px]">Impact</span>
                             <span className="text-white/80 font-mono font-semibold truncate max-w-[150px]" title={item.impact}>{item.impact}</span>
