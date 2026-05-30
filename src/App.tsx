@@ -866,92 +866,82 @@ export default function App() {
 
                     let statusText = "Upcoming";
                     let badgeClass = "text-white/40 border-white/5 bg-white/5";
-                    let cardClass = "bg-white/[0.02] border-white/5";
+                    let cardClass = "bg-[#0b0c10] border-white/10";
 
                     if (item.isActive) {
                       statusText = "Active Transit";
                       badgeClass = "text-gold border-gold/30 bg-gold/10 animate-pulse font-bold";
-                      cardClass = "bg-gradient-to-br from-gold/[0.03] to-transparent border-gold/20 shadow-[0_0_15px_-3px_rgba(212,175,55,0.05)]";
+                      cardClass = "bg-[#13110d] border-gold/40 shadow-[0_0_15px_-3px_rgba(212,175,55,0.05)]";
                     } else if (isUpcomingNext) {
                       statusText = "Next In Line";
                       badgeClass = "text-emerald-400 border-emerald-500/20 bg-emerald-500/10 font-bold";
-                      cardClass = "bg-gradient-to-tr from-emerald-500/[0.01] to-white/[0.01] border-emerald-500/10 hover:border-emerald-500/30";
+                      cardClass = "bg-[#0b1411] border-emerald-500/30 hover:border-emerald-500/50";
                     } else if (isPastDirect) {
                       statusText = "Preceding Past";
                       badgeClass = "text-purple-400 border-purple-500/20 bg-purple-500/10 font-medium";
-                      cardClass = "border-purple-500/5 hover:border-purple-500/20";
+                      cardClass = "bg-[#0f0b14] border-purple-500/20 hover:border-purple-500/40";
                     } else if (item.isPast) {
                       statusText = "Completed";
                       badgeClass = "text-white/20 border-white/5 bg-white/[0.01]";
-                      cardClass = "opacity-65 hover:opacity-100 transition-opacity duration-300";
+                      cardClass = "bg-[#07080e] border-white/5 opacity-75 hover:opacity-100 transition-opacity duration-300";
                     }
 
-                    const elementBg = ELEMENT_BACKGROUNDS[item.constellation.element] || ELEMENT_BACKGROUNDS["Air"];
                     const geom = CONSTELLATION_GEOMETRY[item.constellation.name];
                     const svgColorClass = item.isActive 
-                      ? "text-gold/25 group-hover:text-gold/45" 
+                      ? "text-gold/40 group-hover:text-gold/60" 
                       : isUpcomingNext 
-                        ? "text-emerald-400/20 group-hover:text-emerald-400/40" 
+                        ? "text-emerald-400/30 group-hover:text-emerald-400/50" 
                         : isPastDirect
-                          ? "text-purple-400/15 group-hover:text-purple-400/35"
-                          : "text-white/10 group-hover:text-gold/25";
+                          ? "text-purple-400/25 group-hover:text-purple-400/45"
+                          : "text-white/20 group-hover:text-white/35";
 
                     return (
                       <div 
                         key={idx} 
                         className={`relative overflow-hidden border rounded-2xl p-5 flex flex-col justify-between min-h-[220px] transition-all duration-300 hover:bg-white/[0.04] group shadow-inner ${cardClass}`}
                       >
-                        {/* Background cosmic element artwork */}
-                        <div className="absolute inset-0 w-full h-full overflow-hidden rounded-2xl pointer-events-none z-0">
-                          <img 
-                            src={elementBg} 
-                            alt="" 
-                            referrerPolicy="no-referrer"
-                            className="absolute inset-0 w-full h-full object-cover opacity-[0.09] group-hover:opacity-[0.16] transition-all duration-700 ease-out group-hover:scale-105 pointer-events-none"
-                          />
-                          <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-950/20 to-transparent opacity-85 z-10" />
-                        </div>
-
-                        {/* Interactive Constellation Overlay Vector Map */}
+                        {/* Interactive Constellation Overlay Vector Map - Placed In Centre */}
                         {geom && (
-                          <svg 
-                            viewBox="0 0 100 100" 
-                            className={`absolute right-3 bottom-0 w-28 h-28 pointer-events-none transition-all duration-500 ease-out z-0 transform translate-x-3 translate-y-3 group-hover:translate-x-0 group-hover:translate-y-0 group-hover:scale-110 ${svgColorClass}`}
-                          >
-                            {/* Lines connecting stars */}
-                            {geom.lines.map(([fromIdx, toIdx], lineIdx) => {
-                              const fromStar = geom.stars[fromIdx];
-                              const toStar = geom.stars[toIdx];
-                              if (!fromStar || !toStar) return null;
-                              return (
-                                <line
-                                  key={lineIdx}
-                                  x1={fromStar.x}
-                                  y1={fromStar.y}
-                                  x2={toStar.x}
-                                  y2={toStar.y}
-                                  className="stroke-current transition-all duration-500"
-                                  strokeWidth="0.85"
-                                  strokeDasharray={item.isActive ? "none" : "3,2.5"}
-                                />
-                              );
-                            })}
-                            {/* Highlighted stars */}
-                            {geom.stars.map((star, starIdx) => {
-                              // Make the first star or bright star larger/glowing dynamically
-                              const isBrightStar = starIdx === 0 || (starIdx === 4 && item.constellation.name === "Virgo");
-                              const starRadius = isBrightStar ? 2.5 : 1.6;
-                              return (
-                                <circle
-                                  key={starIdx}
-                                  cx={star.x}
-                                  cy={star.y}
-                                  r={starRadius}
-                                  className="fill-current drop-shadow-[0_0_2px_rgba(255,255,255,0.7)] group-hover:drop-shadow-[0_0_4px_rgba(212,175,55,0.95)] transition-all duration-300"
-                                />
-                              );
-                            })}
-                          </svg>
+                          <div className="absolute inset-0 flex items-center justify-center pointer-events-none z-0 overflow-hidden">
+                            <svg 
+                              viewBox="0 0 100 100" 
+                              className={`w-28 h-28 pointer-events-none transition-all duration-500 ease-out z-0 transform group-hover:scale-110 ${svgColorClass}`}
+                            >
+                              {/* Lines connecting stars */}
+                              {geom.lines.map(([fromIdx, toIdx], lineIdx) => {
+                                const fromStar = geom.stars[fromIdx];
+                                const toStar = geom.stars[toIdx];
+                                if (!fromStar || !toStar) return null;
+                                return (
+                                  <line
+                                    key={lineIdx}
+                                    x1={fromStar.x}
+                                    y1={fromStar.y}
+                                    x2={toStar.x}
+                                    y2={toStar.y}
+                                    className="stroke-current transition-all duration-500"
+                                    strokeWidth="0.85"
+                                    strokeDasharray={item.isActive ? "none" : "3,2.5"}
+                                  />
+                                );
+                              })}
+                              {/* Highlighted stars */}
+                              {geom.stars.map((star, starIdx) => {
+                                // Make the first star or bright star larger/glowing dynamically
+                                const isBrightStar = starIdx === 0 || (starIdx === 4 && item.constellation.name === "Virgo");
+                                const starRadius = isBrightStar ? 2.5 : 1.6;
+                                return (
+                                  <circle
+                                    key={starIdx}
+                                    cx={star.x}
+                                    cy={star.y}
+                                    r={starRadius}
+                                    className="fill-current drop-shadow-[0_0_2px_rgba(255,255,255,0.7)] group-hover:drop-shadow-[0_0_4px_rgba(212,175,55,0.95)] transition-all duration-300"
+                                  />
+                                );
+                              })}
+                            </svg>
+                          </div>
                         )}
 
                         <div className="relative z-10">
