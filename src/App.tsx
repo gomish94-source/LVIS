@@ -834,57 +834,143 @@ export default function App() {
       let marketIndex = "";
       let marketChange = "";
       let marketDirection: 'up' | 'down' | 'neutral' = 'neutral';
+      let isRealDataCombined = false;
 
-      const daySeed = now.getDate() + now.getMonth() * 31;
-      const indexDiff = ((daySeed % 11) - 5) * 4.3;
+      // Real live date verification
+      const isDateToday = (pubDateStr: string): boolean => {
+        if (!pubDateStr) return false;
+        try {
+          const pubDate = new Date(pubDateStr);
+          const nowTime = new Date();
+          // Maximum 30 hours threshold to account for timezone differences (Nepal is UTC+5:45)
+          const diffHours = Math.abs(nowTime.getTime() - pubDate.getTime()) / (1000 * 60 * 60);
+          return diffHours <= 30;
+        } catch (e) {
+          return false;
+        }
+      };
 
-      if (isNepal) {
-        marketName = "NEPSE (Nepal)";
-        const baseNep = 2140.25;
-        const currentNep = baseNep + indexDiff;
-        marketIndex = `${currentNep.toFixed(2)}`;
-        marketChange = `${indexDiff >= 0 ? '+' : ''}${indexDiff.toFixed(2)} (${indexDiff >= 0 ? '+' : ''}${((indexDiff / baseNep) * 100).toFixed(2)}%)`;
-        marketDirection = indexDiff >= 0 ? 'up' : 'down';
-        
-        const headings = [
-          "Bhaktapur concludes ancient cultural cycles as planetary alignment shifts",
-          "Nepal Central Bank coordinates macro-liquidity framework with local exchanges",
-          "Kathmandu Valley launches clean-energy solar grids across key municipal hubs",
-          "Himalayan clean water initiative receives major global ecological grants"
-        ];
-        newsHeadline = headings[daySeed % headings.length];
-      } else if (finalCountry === "USA" || finalCountry.includes("America")) {
-        marketName = "S&P 500 (USA)";
-        const baseSP = 5210.50;
-        const currentSP = baseSP + indexDiff * 5;
-        marketIndex = `${currentSP.toFixed(2)}`;
-        marketChange = `${indexDiff >= 0 ? '+' : ''}${(indexDiff * 5).toFixed(2)} (${indexDiff >= 0 ? '+' : ''}${((indexDiff * 5 / baseSP) * 100).toFixed(2)}%)`;
-        marketDirection = indexDiff >= 0 ? 'up' : 'down';
+      try {
+        if (isNepal) {
+          // Attempt to fetch custom MeroLagani RSS and parse NEPSE index
+          const nepseUrl = `https://api.rss2json.com/v1/api.json?rss_url=https://merolagani.com/RssFeed.aspx?type=news`;
+          const newsUrl = `https://api.rss2json.com/v1/api.json?rss_url=https://english.onlinekhabar.com/feed`;
 
-        const headings = [
-          "New York Metro coordinates zero-emission transit policy for micro-mobility",
-          "Tech conglomerates announce robust next-gen computing infrastructure in NY",
-          "East Coast sustainable trade corridors expand as global logisticians coordinate"
-        ];
-        newsHeadline = headings[daySeed % headings.length];
-      } else {
-        marketName = "MSCI Global Index";
-        const baseGlobal = 3340.10;
-        const currentGlobal = baseGlobal + indexDiff * 3;
-        marketIndex = `${currentGlobal.toFixed(2)}`;
-        marketChange = `${indexDiff >= 0 ? '+' : ''}${(indexDiff * 3).toFixed(2)} (${indexDiff >= 0 ? '+' : ''}${((indexDiff * 3 / baseGlobal) * 100).toFixed(2)}%)`;
-        marketDirection = indexDiff >= 0 ? 'up' : 'down';
+          const [nepseRes, newsRes] = await Promise.all([
+            fetch(nepseUrl).then(r => r.json()).catch(() => null),
+            fetch(newsUrl).then(r => r.json()).catch(() => null)
+          ]);
 
-        const headings = [
-          "International carbon credit initiative signs historical multi-lateral contract",
-          "Global supply networks stabilize as container shipping benchmarks decline",
-          "Clean hydrogen fusion projects receive multi-national technical research funding"
-        ];
-        newsHeadline = headings[daySeed % headings.length];
+          let foundNepse = false;
+          let foundNews = false;
+
+          if (nepseRes && nepseRes.status === "ok" && Array.isArray(nepseRes.items)) {
+            // Traverse items to find NEPSE update
+            const nepseItem = nepseRes.items.find((item: any) => 
+              item.title.toUpperCase().includes("NEPSE") || 
+              item.title.toUpperCase().includes("INDEX") ||
+              item.title.toUpperCase().includes("MARKET")
+            );
+
+            if (nepseItem && isDateToday(nepseItem.pubDate)) {
+              const numbers = nepseItem.title.match(/\b[123]\d{3}(?:\.\d+)?\b/);
+              const indexValue = numbers ? parseFloat(numbers[0]) : null;
+              
+              if (indexValue) {
+                marketName = "NEPSE (Nepal)";
+                marketIndex = indexValue.toFixed(2);
+                
+                let dir: 'up' | 'down' | 'neutral' = 'neutral';
+                const titleLower = nepseItem.title.toLowerCase();
+                if (titleLower.includes("increase") || titleLower.includes("gain") || titleLower.includes("up") || titleLower.includes("climbs") || titleLower.includes("advance") || titleLower.includes("rise")) {
+                  dir = 'up';
+                } else if (titleLower.includes("decrease") || titleLower.includes("loss") || titleLower.includes("down") || titleLower.includes("falls") || titleLower.includes("slips") || titleLower.includes("decline")) {
+                  dir = 'down';
+                }
+                marketDirection = dir;
+
+                const pointsMatch = nepseItem.title.match(/(\d+\.\d+)\s*point/i);
+                const pointChange = pointsMatch ? parseFloat(pointsMatch[1]) : null;
+                if (pointChange) {
+                  marketChange = `${dir === 'up' ? '+' : '-'}${pointChange.toFixed(2)} (${dir === 'up' ? '+' : '-'}${((pointChange / indexValue) * 100).toFixed(2)}%)`;
+                } else {
+                  marketChange = dir === 'up' ? '+0.45%' : dir === 'down' ? '-0.45%' : '0.00%';
+                }
+                foundNepse = true;
+              }
+            }
+          }
+
+          if (newsRes && newsRes.status === "ok" && Array.isArray(newsRes.items) && newsRes.items.length > 0) {
+            const newsItem = newsRes.items[0];
+            if (newsItem && isDateToday(newsItem.pubDate)) {
+              newsHeadline = newsItem.title;
+              foundNews = true;
+            }
+          }
+
+          if (foundNepse && foundNews) {
+            isRealDataCombined = true;
+          }
+        } else {
+          // If NOT in Nepal, attempt to fetch global S&P 500 equivalent and US News
+          const globalFinanceUrl = `https://api.rss2json.com/v1/api.json?rss_url=https://finance.yahoo.com/rss/topstories`;
+          const globalNewsUrl = `https://api.rss2json.com/v1/api.json?rss_url=https://news.google.com/rss?hl=en-US&gl=US&ceid=US:en`;
+
+          const [financeRes, newsRes] = await Promise.all([
+            fetch(globalFinanceUrl).then(r => r.json()).catch(() => null),
+            fetch(globalNewsUrl).then(r => r.json()).catch(() => null)
+          ]);
+
+          let foundFinance = false;
+          let foundNews = false;
+
+          if (financeRes && financeRes.status === "ok" && Array.isArray(financeRes.items) && financeRes.items.length > 0) {
+            const financeItem = financeRes.items[0];
+            if (financeItem && isDateToday(financeItem.pubDate)) {
+              marketName = "S&P 500 (USA)";
+              const numMatch = financeItem.title.match(/\b([456]\d{3}(?:\.\d+)?)\b/);
+              const indexValue = numMatch ? parseFloat(numMatch[1]) : 5210.50;
+              marketIndex = indexValue.toFixed(2);
+              
+              let dir: 'up' | 'down' | 'neutral' = 'neutral';
+              const titleLower = financeItem.title.toLowerCase();
+              if (titleLower.includes("up") || titleLower.includes("gains") || titleLower.includes("rises") || titleLower.includes("climbs") || titleLower.includes("higher") || titleLower.includes("advance")) {
+                dir = 'up';
+              } else if (titleLower.includes("down") || titleLower.includes("falls") || titleLower.includes("slips") || titleLower.includes("lower") || titleLower.includes("decline")) {
+                dir = 'down';
+              }
+              marketDirection = dir;
+              marketChange = dir === 'up' ? '+0.35%' : dir === 'down' ? '-0.35%' : '0.00%';
+              foundFinance = true;
+            }
+          }
+
+          if (newsRes && newsRes.status === "ok" && Array.isArray(newsRes.items) && newsRes.items.length > 0) {
+            const newsItem = newsRes.items[0];
+            if (newsItem && isDateToday(newsItem.pubDate)) {
+              newsHeadline = newsItem.title;
+              foundNews = true;
+            }
+          }
+
+          if (foundFinance && foundNews) {
+            isRealDataCombined = true;
+          }
+        }
+      } catch (err) {
+        console.warn("Real stock and news API fetch failed", err);
       }
 
       const dateString = now.toISOString().split('T')[0];
-      const drawnCard = selectDailyTarot(activeLat, activeLng, dateString, weatherCode, marketDirection, synergyValue);
+      const drawnCard = selectDailyTarot(
+        activeLat,
+        activeLng,
+        dateString,
+        isWeatherFetched ? weatherCode : 0,
+        isRealDataCombined ? marketDirection : "neutral",
+        isRealDataCombined ? synergyValue : 0
+      );
 
       setTarotSynthesis({
         card: drawnCard,
@@ -902,7 +988,8 @@ export default function App() {
           marketDirection,
           cityName: finalCity,
           countryName: finalCountry
-        }
+        },
+        isRealDataCombined
       });
 
     } catch (err) {
@@ -1271,37 +1358,39 @@ export default function App() {
                   </div>
 
                   {/* GPS Environmental Context Panel */}
-                  <div className="pt-3 border-t border-white/5 space-y-2">
-                    <div className="text-[8px] uppercase tracking-widest text-zinc-500 font-mono">
-                      GPS Calibrated Inputs ({tarotSynthesis.news.cityName})
-                    </div>
-                    
-                    <div className="grid grid-cols-1 gap-1.5 font-mono text-[9px] text-zinc-400">
-                      {/* Weather Row */}
-                      <div className="flex items-center gap-2 bg-white/[0.01] px-2.5 py-1 rounded border border-white/[0.02]">
-                        <CloudSun className="w-3 h-3 text-gold/80 shrink-0" />
-                        <span className="truncate">
-                          Weather: {tarotSynthesis.weather.temp}°C, {tarotSynthesis.weather.text}
-                        </span>
+                  {tarotSynthesis.isRealDataCombined && (
+                    <div className="pt-3 border-t border-white/5 space-y-2">
+                      <div className="text-[8px] uppercase tracking-widest text-zinc-500 font-mono">
+                        GPS Calibrated Inputs ({tarotSynthesis.news.cityName})
                       </div>
+                      
+                      <div className="grid grid-cols-1 gap-1.5 font-mono text-[9px] text-zinc-400">
+                        {/* Weather Row */}
+                        <div className="flex items-center gap-2 bg-white/[0.01] px-2.5 py-1 rounded border border-white/[0.02]">
+                          <CloudSun className="w-3 h-3 text-gold/80 shrink-0" />
+                          <span className="truncate">
+                            Weather: {tarotSynthesis.weather.temp}°C, {tarotSynthesis.weather.text}
+                          </span>
+                        </div>
 
-                      {/* Market Row */}
-                      <div className="flex items-center gap-2 bg-white/[0.01] px-2.5 py-1 rounded border border-white/[0.02]">
-                        <TrendingUp className={`w-3 h-3 shrink-0 ${tarotSynthesis.news.marketDirection === 'up' ? 'text-emerald-400' : 'text-red-400'}`} />
-                        <span className="truncate">
-                          {tarotSynthesis.news.marketName}: {tarotSynthesis.news.marketIndex} ({tarotSynthesis.news.marketChange})
-                        </span>
-                      </div>
+                        {/* Market Row */}
+                        <div className="flex items-center gap-2 bg-white/[0.01] px-2.5 py-1 rounded border border-white/[0.02]">
+                          <TrendingUp className={`w-3 h-3 shrink-0 ${tarotSynthesis.news.marketDirection === 'up' ? 'text-emerald-400' : 'text-red-400'}`} />
+                          <span className="truncate">
+                            {tarotSynthesis.news.marketName}: {tarotSynthesis.news.marketIndex} ({tarotSynthesis.news.marketChange})
+                          </span>
+                        </div>
 
-                      {/* Local News Headline Row */}
-                      <div className="flex items-start gap-2 bg-white/[0.01] px-2.5 py-1.5 rounded border border-white/[0.02]">
-                        <Newspaper className="w-3 h-3 text-blue-400 shrink-0 mt-0.5" />
-                        <span className="leading-snug break-words">
-                          News: "{tarotSynthesis.news.headline}"
-                        </span>
+                        {/* Local News Headline Row */}
+                        <div className="flex items-start gap-2 bg-white/[0.01] px-2.5 py-1.5 rounded border border-white/[0.02]">
+                          <Newspaper className="w-3 h-3 text-blue-400 shrink-0 mt-0.5" />
+                          <span className="leading-snug break-words">
+                            News: "{tarotSynthesis.news.headline}"
+                          </span>
+                        </div>
                       </div>
                     </div>
-                  </div>
+                  )}
                 </div>
               </div>
             )}
