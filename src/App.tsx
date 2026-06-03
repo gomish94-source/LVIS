@@ -360,6 +360,38 @@ function selectDailyTarot(
   return MAJOR_ARCANA[index];
 }
 
+function generateAlchemicalExplanation(
+  cardName: string,
+  concept: string,
+  weatherText: string,
+  weatherTemp: number,
+  moonPhase: string,
+  moonConstellation: string,
+  moonElement: string,
+  moonRuler: string,
+  isWaxing: boolean
+): string {
+  let weatherSensing = "";
+  const tempStr = `${weatherTemp.toFixed(1)}°C`;
+  const lowerWeather = weatherText.toLowerCase();
+
+  if (lowerWeather.includes("clear") || lowerWeather.includes("sunny")) {
+    weatherSensing = `Under a clear and open sky at ${tempStr}, direct cosmic solar frequencies filter down unimpeded, highly amplifying the card's active agency.`;
+  } else if (lowerWeather.includes("cloud") || lowerWeather.includes("overcast") || lowerWeather.includes("gloom") || lowerWeather.includes("sky")) {
+    weatherSensing = `Calibrated beneath an overcast, cloud-shielded canopy at ${tempStr}, external noise is filtered, concentrating the card's currents inward for contemplation.`;
+  } else if (lowerWeather.includes("rain") || lowerWeather.includes("drizzle") || lowerWeather.includes("shower") || lowerWeather.includes("thunderstorm")) {
+    weatherSensing = `With energetic rain and atmospheric charges present at ${tempStr}, today's natural current triggers rapid alchemical transformation.`;
+  } else {
+    weatherSensing = `Sensed at a steady ${tempStr} under ${lowerWeather} conditions, local atmospheric pressure reinforces stable, rhythmic integration.`;
+  }
+
+  const cycleDirection = isWaxing ? "rising waxing currents (building phase)" : "releasing waning currents (introspective phase)";
+  const astroSensing = `Simultaneously, the Moon passes through ${moonConstellation} (a powerful ${moonElement.toLowerCase()} sign ruled by ${moonRuler}). This coordinates the card's core meaning through the lens of ${moonElement.toUpperCase()} and merges with ${cycleDirection}.`;
+
+  return `${weatherSensing} ${astroSensing} Therefore, today's drawn archetype of ${concept.toUpperCase()} is directly infused with these physical elements, recommending that you channel its advice in accordance with these cosmic inputs.`;
+}
+
+
 const renderTarotIcon = (iconType: string, accentColor: string) => {
   switch (iconType) {
     case "fool":
@@ -608,6 +640,28 @@ export default function App() {
 
   const [isMirrorFlipped, setIsMirrorFlipped] = useState(false);
   const [tarotSynthesis, setTarotSynthesis] = useState<any | null>(null);
+
+  const [tarotAnalysisStep, setTarotAnalysisStep] = useState<number>(0);
+  const [isTarotAnalyzing, setIsTarotAnalyzing] = useState<boolean>(false);
+
+  const startTarotSynthesis = () => {
+    setIsTarotAnalyzing(true);
+    setTarotAnalysisStep(1);
+    
+    setTimeout(() => {
+      setTarotAnalysisStep(2);
+      setTimeout(() => {
+        setTarotAnalysisStep(3);
+        setTimeout(() => {
+          setTarotAnalysisStep(4);
+          setTimeout(() => {
+            setTarotAnalysisStep(5);
+            setIsTarotAnalyzing(false);
+          }, 950);
+        }, 950);
+      }, 950);
+    }, 950);
+  };
 
   const fetchAstroData = async (lat: number, lng: number) => {
     try {
@@ -989,8 +1043,19 @@ export default function App() {
           cityName: finalCity,
           countryName: finalCountry
         },
+        moon: {
+          illumination: md.illumination,
+          phaseName: md.phaseName,
+          isWaxing: md.isWaxing,
+          constellationName: presMoonTransit?.constellation.name || "Aries",
+          sanskritName: presMoonTransit?.constellation.sanskritName || "Mesha",
+          ruler: presMoonTransit?.constellation.ruler || "Mars",
+          element: presMoonTransit?.constellation.element || "Fire",
+          longitude: presMoonTransit?.longitude ?? 15,
+        },
         isRealDataCombined
       });
+      setTarotAnalysisStep(0);
 
     } catch (err) {
       console.error("Calculate synergy error", err);
@@ -1296,102 +1361,233 @@ export default function App() {
           <div className="flex flex-col gap-6">
             {/* Daily Cosmic Tarot Card */}
             {tarotSynthesis && (
-              <div className="bg-[#0b0c10] border border-white/10 rounded-2xl p-5 flex flex-col shadow-2xl relative overflow-hidden group">
+              <div id="ecliptic-tarot-synthesis-box" className="bg-[#0b0c10] border border-white/10 rounded-2xl p-5 flex flex-col shadow-2xl relative overflow-hidden group min-w-[300px]">
                 <div className="absolute inset-0 bg-gradient-to-b from-white/[0.01] to-transparent pointer-events-none" />
                 
                 <div className="flex items-center justify-between mb-4 pb-2 border-b border-white/5">
                   <span className="text-[9px] uppercase tracking-[0.2em] text-gold font-mono flex items-center gap-1.5">
                     <Sparkles className="w-3 h-3 text-gold animate-pulse" /> Ecliptic Tarot Synthesis
                   </span>
-                  <span className="text-[9px] font-mono text-zinc-500 uppercase">
-                    Today's Gateway
-                  </span>
+                  {tarotAnalysisStep === 5 && (
+                    <button 
+                      onClick={() => setTarotAnalysisStep(0)}
+                      className="text-[8px] font-mono text-zinc-500 uppercase hover:text-gold transition-colors flex items-center gap-1"
+                    >
+                      <RefreshCw className="w-2.5 h-2.5 animate-spin-reverse" /> Re-Analyze
+                    </button>
+                  )}
                 </div>
 
-                {/* The Physical Card Rendering */}
-                <div className="relative w-full aspect-[2/3.2] max-w-[190px] mx-auto mb-5 rounded-2xl border-2 border-gold/30 bg-[#07080e] shadow-[0_0_25px_rgba(212,175,55,0.05)] p-3 flex flex-col justify-between group-hover:border-gold/60 group-hover:shadow-[0_0_40px_rgba(212,175,55,0.12)] transition-all duration-500 overflow-hidden">
-                  {/* Mystic Inner Frame */}
-                  <div className="absolute inset-1 border border-gold/15 rounded-[12px] pointer-events-none" />
-                  
-                  {/* Card Header */}
-                  <div className="text-center z-10 pt-1">
-                    <span className="text-[10px] font-mono text-gold/60 block tracking-[0.3em] uppercase leading-none font-semibold">
-                      {tarotSynthesis.card.number}
-                    </span>
-                    <span className="text-xs font-serif font-black tracking-widest text-white block uppercase mt-0.5">
-                      {tarotSynthesis.card.name}
-                    </span>
+                {tarotAnalysisStep === 0 && (
+                  <div className="py-8 px-4 flex flex-col items-center justify-center text-center space-y-4">
+                    <div className="relative w-20 h-20 flex items-center justify-center border border-gold/10 rounded-full bg-white/[0.01]">
+                      <div className="absolute inset-2 border border-dashed border-gold/25 rounded-full animate-[spin_12s_linear_infinite]" />
+                      <Eye className="w-8 h-8 text-gold/60 animate-pulse" />
+                    </div>
+                    <div className="space-y-1.5">
+                      <h4 className="text-xs font-semibold uppercase text-gold tracking-widest">Sensing Matrix Idle</h4>
+                      <p className="text-[10px] text-zinc-400 font-light leading-relaxed max-w-[240px]">
+                        Requires live data parsing from this page itself (Atmospheric Forecasts, Moon Constellation Transits, and Market streams) to reveal today's drawn talisman.
+                      </p>
+                    </div>
+                    <button
+                      onClick={startTarotSynthesis}
+                      className="w-full py-2.5 px-4 bg-gradient-to-r from-gold/15 to-amber-500/10 hover:from-gold/25 hover:to-amber-500/15 border border-gold/30 hover:border-gold/60 rounded-xl text-[10px] uppercase tracking-widest text-gold font-bold transition-all duration-300 shadow-md shadow-gold/5 flex items-center justify-center gap-2 group animate-bounce-subtle"
+                    >
+                      <Sparkles className="w-3.5 h-3.5 text-gold group-hover:scale-110 transition-transform" />
+                      Analyze & Draw Today's Card
+                    </button>
                   </div>
+                )}
 
-                  {/* Core Celestial Symbol - Placed In Centre */}
-                  <div className="my-auto flex items-center justify-center relative w-24 h-24 mx-auto bg-black rounded-full border border-white/5 shadow-inner z-10">
-                    <div className="absolute inset-0 rounded-full bg-radial-gradient from-white/[0.03] to-transparent" />
-                    {renderTarotIcon(tarotSynthesis.card.iconType, tarotSynthesis.card.accentColor)}
-                  </div>
-
-                  {/* Card Footer */}
-                  <div className="text-center z-10 pb-1">
-                    <span className="text-[9px] uppercase tracking-[0.2em] text-gold font-mono bg-gold/5 px-2 py-0.5 rounded border border-gold/10 inline-block">
-                      {tarotSynthesis.card.concept}
-                    </span>
-                  </div>
-                </div>
-
-                {/* Card Interpretation and Dynamic Synthesis References */}
-                <div className="space-y-4">
-                  <div>
-                    <h3 className="text-sm font-semibold text-white/95 leading-tight">
-                      {tarotSynthesis.card.concept} • {tarotSynthesis.card.name}
-                    </h3>
-                    <p className="text-zinc-400 text-[11px] leading-relaxed mt-1 font-light">
-                      {tarotSynthesis.card.generalMeaning}
-                    </p>
-                  </div>
-
-                  <div className="p-3 bg-white/[0.02] border border-white/5 rounded-xl">
-                    <span className="text-[8px] uppercase tracking-widest text-gold font-mono block mb-1">
-                      Cosmic Direct Guidance
-                    </span>
-                    <p className="text-amber-100/90 text-[11px] font-light leading-relaxed">
-                      {tarotSynthesis.card.cosmicGuidance}
-                    </p>
-                  </div>
-
-                  {/* GPS Environmental Context Panel */}
-                  {tarotSynthesis.isRealDataCombined && (
-                    <div className="pt-3 border-t border-white/5 space-y-2">
-                      <div className="text-[8px] uppercase tracking-widest text-zinc-500 font-mono">
-                        GPS Calibrated Inputs ({tarotSynthesis.news.cityName})
+                {/* ANIMATED PROGRESS STEPS LOGS */}
+                {tarotAnalysisStep > 0 && tarotAnalysisStep < 5 && (
+                  <div className="py-6 px-3 flex flex-col justify-center min-h-[220px] space-y-4">
+                    <div className="space-y-2">
+                      <div className="flex justify-between items-center text-[9px] font-mono text-zinc-400">
+                        <span>CALIBRATING SENSORY MATRIX</span>
+                        <span className="text-gold font-bold">{tarotAnalysisStep * 25}%</span>
                       </div>
-                      
-                      <div className="grid grid-cols-1 gap-1.5 font-mono text-[9px] text-zinc-400">
-                        {/* Weather Row */}
-                        <div className="flex items-center gap-2 bg-white/[0.01] px-2.5 py-1 rounded border border-white/[0.02]">
-                          <CloudSun className="w-3 h-3 text-gold/80 shrink-0" />
-                          <span className="truncate">
-                            Weather: {tarotSynthesis.weather.temp}°C, {tarotSynthesis.weather.text}
-                          </span>
-                        </div>
+                      <div className="h-1 bg-white/5 rounded-full overflow-hidden border border-white/[0.02]">
+                        <motion.div 
+                          className="h-full bg-gradient-to-r from-gold to-amber-500"
+                          initial={{ width: "0%" }}
+                          animate={{ width: `${tarotAnalysisStep * 25}%` }}
+                          transition={{ duration: 0.4, ease: "easeOut" }}
+                        />
+                      </div>
+                    </div>
 
-                        {/* Market Row */}
-                        <div className="flex items-center gap-2 bg-white/[0.01] px-2.5 py-1 rounded border border-white/[0.02]">
-                          <TrendingUp className={`w-3 h-3 shrink-0 ${tarotSynthesis.news.marketDirection === 'up' ? 'text-emerald-400' : 'text-red-400'}`} />
-                          <span className="truncate">
-                            {tarotSynthesis.news.marketName}: {tarotSynthesis.news.marketIndex} ({tarotSynthesis.news.marketChange})
-                          </span>
+                    <div className="space-y-2.5 font-mono text-[9.5px] leading-relaxed text-left">
+                      {/* Step 1 Log */}
+                      <div className={`flex items-start gap-2.5 transition-opacity duration-300 ${tarotAnalysisStep >= 1 ? 'opacity-100' : 'opacity-20'}`}>
+                        <span className={`shrink-0 ${tarotAnalysisStep > 1 ? 'text-emerald-400 font-bold' : 'text-gold animate-pulse'}`}>
+                          {tarotAnalysisStep > 1 ? "✓" : "▶"}
+                        </span>
+                        <div className="space-y-0.5">
+                          <span className="text-zinc-300 uppercase tracking-wider font-semibold">1. Sensing Atmosphere:</span>
+                          {tarotAnalysisStep >= 2 && (
+                            <p className="text-zinc-500 text-[8.5px]">Synced with Open-Meteo. Detected: {tarotSynthesis.weather.text} ({tarotSynthesis.weather.temp}°C) at coordinates.</p>
+                          )}
                         </div>
+                      </div>
 
-                        {/* Local News Headline Row */}
-                        <div className="flex items-start gap-2 bg-white/[0.01] px-2.5 py-1.5 rounded border border-white/[0.02]">
-                          <Newspaper className="w-3 h-3 text-blue-400 shrink-0 mt-0.5" />
-                          <span className="leading-snug break-words">
-                            News: "{tarotSynthesis.news.headline}"
-                          </span>
+                      {/* Step 2 Log */}
+                      <div className={`flex items-start gap-2.5 transition-opacity duration-300 ${tarotAnalysisStep >= 2 ? 'opacity-100' : 'opacity-20'}`}>
+                        <span className={`shrink-0 ${tarotAnalysisStep > 2 ? 'text-emerald-400 font-bold' : tarotAnalysisStep === 2 ? 'text-gold animate-pulse' : 'text-zinc-600'}`}>
+                          {tarotAnalysisStep > 2 ? "✓" : tarotAnalysisStep === 2 ? "▶" : "◦"}
+                        </span>
+                        <div className="space-y-0.5">
+                          <span className="text-zinc-300 uppercase tracking-wider font-semibold">2. Lunar Orbit Positioned:</span>
+                          {tarotAnalysisStep >= 3 && (
+                            <p className="text-zinc-500 text-[8.5px]">Moon is in front of {tarotSynthesis.moon.constellationName} ({tarotSynthesis.moon.sanskritName}) constellation at {tarotSynthesis.moon.longitude.toFixed(1)}° longitude.</p>
+                          )}
+                        </div>
+                      </div>
+
+                      {/* Step 3 Log */}
+                      <div className={`flex items-start gap-2.5 transition-opacity duration-300 ${tarotAnalysisStep >= 3 ? 'opacity-100' : 'opacity-20'}`}>
+                        <span className={`shrink-0 ${tarotAnalysisStep > 3 ? 'text-emerald-400 font-bold' : tarotAnalysisStep === 3 ? 'text-gold animate-pulse' : 'text-zinc-600'}`}>
+                          {tarotAnalysisStep > 3 ? "✓" : tarotAnalysisStep === 3 ? "▶" : "◦"}
+                        </span>
+                        <div className="space-y-0.5">
+                          <span className="text-zinc-300 uppercase tracking-wider font-semibold">3. Cultural & Market Forces Parsed:</span>
+                          {tarotAnalysisStep >= 4 && (
+                            <p className="text-zinc-500 text-[8.5px]">Market details evaluated: {tarotSynthesis.news.marketName || "Global Finance"} index is {tarotSynthesis.news.marketDirection || "neutral"}.</p>
+                          )}
+                        </div>
+                      </div>
+
+                      {/* Step 4 Log */}
+                      <div className={`flex items-start gap-2.5 transition-opacity duration-300 ${tarotAnalysisStep >= 4 ? 'opacity-100' : 'opacity-20'}`}>
+                        <span className={`shrink-0 ${tarotAnalysisStep === 4 ? 'text-gold animate-pulse text-xs font-bold' : 'text-zinc-600'}`}>
+                          {tarotAnalysisStep === 4 ? "⌬" : "◦"}
+                        </span>
+                        <div className="space-y-0.5 font-sans">
+                          <span className="text-zinc-300 uppercase tracking-wider font-mono font-semibold">4. Harmonizing Card Alchemy...</span>
+                          {tarotAnalysisStep === 4 && (
+                            <p className="text-gold/80 text-[8.5px] animate-pulse font-mono">Hashing weather text "{tarotSynthesis.weather.text}" & constellation "{tarotSynthesis.moon.constellationName}" into Gateway card selector...</p>
+                          )}
                         </div>
                       </div>
                     </div>
-                  )}
-                </div>
+                  </div>
+                )}
+
+                {/* COMPLETED CARD DISPLAY */}
+                {tarotAnalysisStep === 5 && (
+                  <motion.div 
+                    initial={{ opacity: 0, scale: 0.95 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    transition={{ duration: 0.5, ease: "easeOut" }}
+                    className="flex flex-col animate-fadeIn"
+                  >
+                    {/* The Physical Card Rendering */}
+                    <div className="relative w-full aspect-[2/3.2] max-w-[190px] mx-auto mb-5 rounded-2xl border-2 border-gold/30 bg-[#07080e] shadow-[0_0_25px_rgba(212,175,55,0.05)] p-3 flex flex-col justify-between group-hover:border-gold/60 group-hover:shadow-[0_0_40px_rgba(212,175,55,0.12)] transition-all duration-500 overflow-hidden">
+                      {/* Mystic Inner Frame */}
+                      <div className="absolute inset-1 border border-gold/15 rounded-[12px] pointer-events-none" />
+                      
+                      {/* Card Header */}
+                      <div className="text-center z-10 pt-1">
+                        <span className="text-[10px] font-mono text-gold/60 block tracking-[0.3em] uppercase leading-none font-semibold">
+                          {tarotSynthesis.card.number}
+                        </span>
+                        <span className="text-xs font-serif font-black tracking-widest text-white block uppercase mt-0.5">
+                          {tarotSynthesis.card.name}
+                        </span>
+                      </div>
+
+                      {/* Core Celestial Symbol - Placed In Centre */}
+                      <div className="my-auto flex items-center justify-center relative w-24 h-24 mx-auto bg-black rounded-full border border-white/5 shadow-inner z-10">
+                        <div className="absolute inset-0 rounded-full bg-radial-gradient from-white/[0.03] to-transparent" />
+                        {renderTarotIcon(tarotSynthesis.card.iconType, tarotSynthesis.card.accentColor)}
+                      </div>
+
+                      {/* Calibrated Stamps on Card Face (Injected Weather and Moon Details) */}
+                      <div className="z-10 px-1.5 py-1 mb-1.5 bg-black/65 backdrop-blur-sm rounded border border-white/5 text-left font-mono text-[7.5px] text-zinc-500 leading-normal">
+                        <div className="flex justify-between items-center border-b border-white/5 pb-0.5 mb-0.5">
+                          <span>WEATHER:</span>
+                          <span className="text-gold/90 font-bold truncate max-w-[90px]">{tarotSynthesis.weather.text} ({tarotSynthesis.weather.temp.toFixed(1)}°C)</span>
+                        </div>
+                        <div className="flex justify-between items-center">
+                          <span>LUNA GRID:</span>
+                          <span className="text-zinc-300 font-medium truncate max-w-[90px]">{tarotSynthesis.moon.phaseName} @ {tarotSynthesis.moon.constellationName}</span>
+                        </div>
+                      </div>
+
+                      {/* Card Footer */}
+                      <div className="text-center z-10 pb-1">
+                        <span className="text-[9px] uppercase tracking-[0.2em] text-gold font-mono bg-gold/5 px-2 py-0.5 rounded border border-gold/10 inline-block">
+                          {tarotSynthesis.card.concept}
+                        </span>
+                      </div>
+                    </div>
+
+                    {/* Card Interpretation and Dynamic Synthesis References */}
+                    <div className="space-y-4">
+                      <div className="border-t border-white/5 pt-3">
+                        <h3 className="text-[11px] uppercase tracking-wider font-bold text-gold flex items-center gap-1.5">
+                          <Sparkles className="w-3.5 h-3.5 text-gold animate-pulse" /> Sensed Alchemy Synthesis
+                        </h3>
+                        <p className="text-zinc-300 text-[11px] leading-relaxed mt-2 font-normal p-3 bg-white/[0.01] border border-white/[0.03] rounded-xl italic">
+                          "{generateAlchemicalExplanation(
+                            tarotSynthesis.card.name,
+                            tarotSynthesis.card.concept,
+                            tarotSynthesis.weather.text,
+                            tarotSynthesis.weather.temp,
+                            tarotSynthesis.moon.phaseName,
+                            tarotSynthesis.moon.constellationName,
+                            tarotSynthesis.moon.element,
+                            tarotSynthesis.moon.ruler,
+                            tarotSynthesis.moon.isWaxing
+                          )}"
+                        </p>
+                      </div>
+
+                      <div className="space-y-1">
+                        <h4 className="text-[11px] font-semibold text-white/95">Baseline Major Arcana Interpretation</h4>
+                        <p className="text-zinc-400 text-[10.5px] leading-relaxed font-light">
+                          {tarotSynthesis.card.generalMeaning}
+                        </p>
+                      </div>
+
+                      {/* GPS Environmental Context Panel */}
+                      {tarotSynthesis.isRealDataCombined && (
+                        <div className="pt-3 border-t border-white/5 space-y-2">
+                          <div className="text-[8px] uppercase tracking-widest text-zinc-500 font-mono">
+                            GPS Calibrated Inputs ({tarotSynthesis.news.cityName})
+                          </div>
+                          
+                          <div className="grid grid-cols-1 gap-1.5 font-mono text-[9px] text-zinc-400">
+                            {/* Weather Row */}
+                            <div className="flex items-center gap-2 bg-white/[0.01] px-2.5 py-1 rounded border border-white/[0.02]">
+                              <CloudSun className="w-3 h-3 text-gold/80 shrink-0" />
+                              <span className="truncate">
+                                Weather: {tarotSynthesis.weather.temp}°C, {tarotSynthesis.weather.text}
+                              </span>
+                            </div>
+
+                            {/* Market Row */}
+                            <div className="flex items-center gap-2 bg-white/[0.01] px-2.5 py-1 rounded border border-white/[0.02]">
+                              <TrendingUp className={`w-3 h-3 shrink-0 ${tarotSynthesis.news.marketDirection === 'up' ? 'text-emerald-400' : 'text-red-400'}`} />
+                              <span className="truncate">
+                                {tarotSynthesis.news.marketName}: {tarotSynthesis.news.marketIndex} ({tarotSynthesis.news.marketChange})
+                              </span>
+                            </div>
+
+                            {/* Local News Headline Row */}
+                            <div className="flex items-start gap-2 bg-white/[0.01] px-2.5 py-1.5 rounded border border-white/[0.02]">
+                              <Newspaper className="w-3 h-3 text-blue-400 shrink-0 mt-0.5" />
+                              <span className="leading-snug break-words">
+                                News: "{tarotSynthesis.news.headline}"
+                              </span>
+                            </div>
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                  </motion.div>
+                )}
               </div>
             )}
 
