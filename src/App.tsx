@@ -1474,7 +1474,7 @@ export default function App() {
                       {/* Vedic Celestial Alignment */}
                       <div className="mt-6">
                         <div className="space-y-1">
-                          <span className="text-[10px] text-amber-300 font-medium uppercase tracking-widest block">Vedic Lunar View</span>
+                          <span className="text-[10px] text-amber-300 font-medium uppercase tracking-widest block">Details:</span>
                           <p className="text-[11px] text-zinc-300 leading-relaxed font-light">
                             {moonTransitPresent.constellation.vedicView}
                           </p>
