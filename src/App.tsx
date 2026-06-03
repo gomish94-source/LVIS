@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
-import { Moon, Sun, MapPin, Loader2, Info, RefreshCw, Compass } from 'lucide-react';
+import { Moon, Sun, MapPin, Loader2, Info, RefreshCw, Compass, Sparkles, TrendingUp, CloudSun, Globe, Newspaper, Eye } from 'lucide-react';
 import { getMoonData, MoonData, getMoonZodiacConstellation, ConstellationDetails, ZODIAC_SURROUNDINGS, LUNA_ADVICE, getNepaliDate, NepaliDateDetails, TRANSIT_ONE_WORDS, CONSTELLATIONS } from './utils/astro';
 import { getCurrentMuhurta, Muhurta, MUHURTAS } from './utils/vedic';
 
@@ -77,6 +77,509 @@ const CONSTELLATION_GEOMETRY: Record<string, { stars: Array<{x: number, y: numbe
   }
 };
 
+function getWeatherCondition(code: number): string {
+  const codes: Record<number, string> = {
+    0: "Clear Sky",
+    1: "Mainly Clear", 2: "Partly Cloudy", 3: "Overcast",
+    45: "Foggy", 48: "Depositing Rime Fog",
+    51: "Light Drizzle", 53: "Moderate Drizzle", 55: "Dense Drizzle",
+    61: "Slight Rain", 63: "Moderate Rain", 65: "Heavy Rain",
+    71: "Slight Snow", 73: "Moderate Snow", 75: "Heavy Snow",
+    77: "Snow Grains",
+    80: "Slight Rain Showers", 81: "Moderate Rain Showers", 82: "Violent Rain Showers",
+    85: "Slight Snow Showers", 86: "Heavy Snow Showers",
+    95: "Thunderstorm", 96: "Thunderstorm with Hail", 99: "Thunderstorm with Heavy Hail"
+  };
+  return codes[code] || "Cosmic Sky";
+}
+
+const MAJOR_ARCANA = [
+  {
+    id: 0,
+    name: "The Fool",
+    number: "0",
+    concept: "Pure Potential",
+    generalMeaning: "A blank celestial slate. Today, fresh impulses and untamed free-will align to open unexpected pathways.",
+    cosmicGuidance: "Adopt absolute open-mindedness. Release rigid strategies and take a courageous step of faith.",
+    themeColor: "text-amber-400 border-amber-500/20 shadow-amber-500/5 bg-[#17130a]/60",
+    accentColor: "#d4af37",
+    iconType: "fool"
+  },
+  {
+    id: 1,
+    name: "The Magician",
+    number: "I",
+    concept: "Manifestation",
+    generalMeaning: "All cosmic elements are at your disposal today. Focused action and willpower catalyze instant results.",
+    cosmicGuidance: "Direct your primary attention toward a single execution. Your creative skill is highly magnified.",
+    themeColor: "text-emerald-400 border-emerald-500/20 shadow-emerald-500/5 bg-[#0a1711]/60",
+    accentColor: "#34d399",
+    iconType: "magician"
+  },
+  {
+    id: 2,
+    name: "The High Priestess",
+    number: "II",
+    concept: "Inner Intuition",
+    generalMeaning: "The veil is thin. Deep insights, whispers from dreams, and subconscious patterns reveal hidden directions.",
+    cosmicGuidance: "Pause external activity. Trust the quiet inner voice before taking any tangible steps.",
+    themeColor: "text-cyan-400 border-cyan-500/20 shadow-cyan-500/5 bg-[#0a1617]/60",
+    accentColor: "#22d3ee",
+    iconType: "priestess"
+  },
+  {
+    id: 3,
+    name: "The Empress",
+    number: "III",
+    concept: "Cosmic Abundance",
+    generalMeaning: "Today is rich with creative fertility and natural comfort. Ideas and projects find direct nourishment.",
+    cosmicGuidance: "Express artistic impulses, indulge in sensory connection with nature, and nurture growing projects.",
+    themeColor: "text-pink-400 border-pink-500/20 shadow-pink-500/5 bg-[#170a13]/60",
+    accentColor: "#f472b6",
+    iconType: "empress"
+  },
+  {
+    id: 4,
+    name: "The Emperor",
+    number: "IV",
+    concept: "Sovereign Order",
+    generalMeaning: "Structure, discipline, and organized efforts stand firm today. You hold the ultimate authority of your focus.",
+    cosmicGuidance: "Establish precise boundaries. Organize messy tasks and construct robust frameworks for others.",
+    themeColor: "text-rose-400 border-rose-500/20 shadow-rose-500/5 bg-[#170a0a]/60",
+    accentColor: "#f43f5e",
+    iconType: "emperor"
+  },
+  {
+    id: 5,
+    name: "The Hierophant",
+    number: "V",
+    concept: "Sacred Formats",
+    generalMeaning: "Aligned with timeless principles and established wisdom, classical structures provide deep security.",
+    cosmicGuidance: "Honor master techniques, study lineage patterns, or follow proven, orderly protocols.",
+    themeColor: "text-yellow-500 border-yellow-500/20 shadow-yellow-500/5 bg-[#17150a]/60",
+    accentColor: "#eab308",
+    iconType: "hierophant"
+  },
+  {
+    id: 6,
+    name: "The Lovers",
+    number: "VI",
+    concept: "Perfect Harmony",
+    generalMeaning: "Bridges of cooperation and value-alignment form effortlessly today. Your desires synchronize perfectly.",
+    cosmicGuidance: "Choose from a place of unified values. Coordinate and collaborate closely with partners.",
+    themeColor: "text-teal-400 border-teal-500/20 shadow-teal-500/5 bg-[#0a1714]/60",
+    accentColor: "#2dd4bf",
+    iconType: "lovers"
+  },
+  {
+    id: 7,
+    name: "The Chariot",
+    number: "VII",
+    concept: "Victory & Will",
+    generalMeaning: "Conflicting currents are harnessed under single-minded willpower. A focused surge overcomes obstacles.",
+    cosmicGuidance: "Proceed with absolute determination. Manage distractions and speed forward.",
+    themeColor: "text-indigo-400 border-indigo-500/20 shadow-indigo-500/5 bg-[#0d0a17]/60",
+    accentColor: "#818cf8",
+    iconType: "chariot"
+  },
+  {
+    id: 8,
+    name: "Strength",
+    number: "VIII",
+    concept: "Quiet Fortitude",
+    generalMeaning: "Gentle patience and inner resolve conquer force. Your calm composure is your greatest power.",
+    cosmicGuidance: "Lead with empathy, quiet confidence, and soft influence instead of aggressive demands.",
+    themeColor: "text-amber-500 border-amber-600/20 shadow-amber-600/5 bg-[#17120a]/60",
+    accentColor: "#f59e0b",
+    iconType: "strength"
+  },
+  {
+    id: 9,
+    name: "The Hermit",
+    number: "IX",
+    concept: "Deep Sanctuary",
+    generalMeaning: "Retreating slightly from noisy chatter allows your inner lantern to reveal critical long-term truths.",
+    cosmicGuidance: "Engage in silent observation. Rest your senses and reflect on your core trajectory.",
+    themeColor: "text-purple-400 border-purple-500/20 shadow-purple-500/5 bg-[#120a17]/60",
+    accentColor: "#c084fc",
+    iconType: "hermit"
+  },
+  {
+    id: 10,
+    name: "Wheel of Fortune",
+    number: "X",
+    concept: "Destiny Shift",
+    generalMeaning: "Rhythms of transition are active today. Aligning with natural cycles brings sudden, auspicious breakthroughs.",
+    cosmicGuidance: "Stay fluid and adaptable. Welcome unexpected changes as divine pivots in your path.",
+    themeColor: "text-gold border-gold/20 shadow-gold/5 bg-[#14120a]/60",
+    accentColor: "#d4af37",
+    iconType: "wheel"
+  },
+  {
+    id: 11,
+    name: "Justice",
+    number: "XI",
+    concept: "Absolute Clarity",
+    generalMeaning: "Truth, intellectual fairness, and balance prevail today. Honest assessments clear confusion.",
+    cosmicGuidance: "Evaluate decisions logically. Act with high-integrity fairness and seek objective truths.",
+    themeColor: "text-emerald-500 border-emerald-500/20 shadow-emerald-500/5 bg-[#0a170d]/60",
+    accentColor: "#10b981",
+    iconType: "justice"
+  },
+  {
+    id: 12,
+    name: "The Hanged Man",
+    number: "XII",
+    concept: "New Perspective",
+    generalMeaning: "A pause in kinetic output triggers powerful internal wisdom. Today, surrendering control brings clarity.",
+    cosmicGuidance: "Suspend immediate action. View your current puzzle from an inverted, counter-intuitive angle.",
+    themeColor: "text-violet-400 border-violet-500/20 shadow-violet-500/5 bg-[#0e0a17]/60",
+    accentColor: "#a78bfa",
+    iconType: "hanged"
+  },
+  {
+    id: 13,
+    name: "Death",
+    number: "XIII",
+    concept: "Rebirth Cycles",
+    generalMeaning: "Outworn behaviors or stale routines fade naturally today to clear the path for powerful rejuvenation.",
+    cosmicGuidance: "Release old patterns gracefully. Let go of what is finished to allow fresh light to enter.",
+    themeColor: "text-fuchsia-500 border-fuchsia-500/20 shadow-fuchsia-500/5 bg-[#170a16]/60",
+    accentColor: "#d946ef",
+    iconType: "death"
+  },
+  {
+    id: 14,
+    name: "Temperance",
+    number: "XIV",
+    concept: "Divine Balance",
+    generalMeaning: "Flowing patience and perfect alchemy integrate diverse activities beautifully. Harmony guides your hours.",
+    cosmicGuidance: "Synthesize disparate goals. Practice beautiful moderation and maintain calm pacing.",
+    themeColor: "text-sky-400 border-sky-500/20 shadow-sky-500/5 bg-[#0a1417]/60",
+    accentColor: "#38bdf8",
+    iconType: "temperance"
+  },
+  {
+    id: 15,
+    name: "The Devil",
+    number: "XV",
+    concept: "Self Liberation",
+    generalMeaning: "Awareness of self-imposed limits or subconscious anchors rises, allowing complete detachment.",
+    cosmicGuidance: "Acknowledge hidden dependency loops. Walk directly out of illusory cages with quiet laughter.",
+    themeColor: "text-red-500 border-red-500/20 shadow-red-500/5 bg-[#170a0a]/60",
+    accentColor: "#ef4444",
+    iconType: "devil"
+  },
+  {
+    id: 16,
+    name: "The Tower",
+    number: "XVI",
+    concept: "Sovereign Shift",
+    generalMeaning: "Sudden clarity dismantles weak illusions. Solid ground is revealed beneath fading assumptions.",
+    cosmicGuidance: "Welcome structural shakes. They remove heavy mental static to reveal absolute reality.",
+    themeColor: "text-orange-400 border-orange-500/20 shadow-orange-500/5 bg-[#170e0a]/60",
+    accentColor: "#fb923c",
+    iconType: "tower"
+  },
+  {
+    id: 17,
+    name: "The Star",
+    number: "XVII",
+    concept: "Celestial Hope",
+    generalMeaning: "Divine inspiration and deep peaceful restoration pour into your aura today. You are fully supported.",
+    cosmicGuidance: "Breathe deeply, practice complete optimism, and believe in the graceful flow of your destiny.",
+    themeColor: "text-cyan-300 border-cyan-400/20 shadow-cyan-400/5 bg-[#0a1617]/60",
+    accentColor: "#67e8f9",
+    iconType: "star"
+  },
+  {
+    id: 18,
+    name: "The Moon",
+    number: "XVIII",
+    concept: "Instinctual Shadows",
+    generalMeaning: "Flickering twilight heightens receptive psychic currents. Rely on deep, cellular instinct.",
+    cosmicGuidance: "Honor mysterious feelings. Avoid analyzing everything logically; let quiet symbols guide you.",
+    themeColor: "text-blue-400 border-blue-500/20 shadow-blue-500/5 bg-[#0a0d17]/60",
+    accentColor: "#60a5fa",
+    iconType: "moon"
+  },
+  {
+    id: 19,
+    name: "The Sun",
+    number: "XIX",
+    concept: "Radiant Clarity",
+    generalMeaning: "Glorious vitality, pure joy, and success illuminate today's tasks. All works are filled with warmth.",
+    cosmicGuidance: "Adopt absolute transparency. Share your bright enthusiasm and bask in complete success.",
+    themeColor: "text-amber-500 border-amber-500/30 shadow-amber-500/10 bg-[#17130a]/50",
+    accentColor: "#f59e0b",
+    iconType: "sun"
+  },
+  {
+    id: 20,
+    name: "Judgment",
+    number: "XX",
+    concept: "Higher Awakening",
+    generalMeaning: "A clear inner clarion call sounds today. You are ready to step into a higher expression of yourself.",
+    cosmicGuidance: "Answer the quiet call of your purpose. Rise above past regrets and take the higher road.",
+    themeColor: "text-yellow-400 border-yellow-500/20 shadow-yellow-500/5 bg-[#17140a]/60",
+    accentColor: "#facc15",
+    iconType: "judgment"
+  },
+  {
+    id: 21,
+    name: "The World",
+    number: "XXI",
+    concept: "Universal Synthesis",
+    generalMeaning: "Ultimate completion, master cosmic integration, and pristine alignment surround you on all axes.",
+    cosmicGuidance: "Celebrate the seamless alignment. You are exactly where you belong in the cosmic coordinate grid.",
+    themeColor: "text-purple-500 border-purple-500/20 shadow-purple-500/5 bg-[#120a17]/60",
+    accentColor: "#a855f7",
+    iconType: "world"
+  }
+];
+
+function selectDailyTarot(
+  lat: number,
+  lng: number,
+  dateStr: string,
+  weatherCode: number,
+  marketDir: string,
+  synergyPct: number
+): typeof MAJOR_ARCANA[0] {
+  let sum = 0;
+  for (let i = 0; i < dateStr.length; i++) {
+    sum += dateStr.charCodeAt(i);
+  }
+  sum += Math.floor(Math.abs(lat) * 10) + Math.floor(Math.abs(lng) * 10);
+  sum += weatherCode * 17;
+  if (marketDir === "up") sum += 53;
+  else if (marketDir === "down") sum += 19;
+  sum += Math.floor(synergyPct * 7);
+  
+  const index = sum % MAJOR_ARCANA.length;
+  return MAJOR_ARCANA[index];
+}
+
+const renderTarotIcon = (iconType: string, accentColor: string) => {
+  switch (iconType) {
+    case "fool":
+      return (
+        <svg viewBox="0 0 100 100" className="w-16 h-16 opacity-95 mx-auto">
+          <path d="M 15,50 Q 35,20 50,50 T 85,50" fill="none" stroke={accentColor} strokeWidth="1.5" strokeDasharray="3,3" />
+          <circle cx="50" cy="50" r="10" fill="none" stroke={accentColor} strokeWidth="2" />
+          <line x1="50" y1="20" x2="50" y2="80" stroke={accentColor} strokeWidth="1" strokeDasharray="5,5" />
+          <circle cx="50" cy="50" r="2" fill={accentColor} />
+          <circle cx="30" cy="30" r="1.5" fill="#fff" className="animate-pulse" />
+          <circle cx="70" cy="70" r="1" fill="#fff" />
+          <circle cx="75" cy="25" r="1" fill="#fff" className="animate-pulse" />
+        </svg>
+      );
+    case "magician":
+      return (
+        <svg viewBox="0 0 100 100" className="w-16 h-16 opacity-95 mx-auto">
+          <path d="M 25,50 C 25,35 45,35 50,50 C 55,65 75,65 75,50 C 75,35 55,35 50,50 C 45,65 25,65 25,50 Z" fill="none" stroke={accentColor} strokeWidth="2" />
+          <circle cx="50" cy="15" r="3" fill="#fff" />
+          <line x1="50" y1="15" x2="50" y2="35" stroke={accentColor} strokeWidth="1.5" />
+          <circle cx="20" cy="25" r="1.5" fill={accentColor} />
+          <circle cx="80" cy="25" r="1.5" fill={accentColor} />
+          <circle cx="20" cy="75" r="1.5" fill={accentColor} />
+          <circle cx="80" cy="75" r="1.5" fill={accentColor} />
+        </svg>
+      );
+    case "priestess":
+      return (
+        <svg viewBox="0 0 100 100" className="w-16 h-16 opacity-95 mx-auto">
+          <path d="M 15,15 L 15,85 M 85,15 L 85,85" stroke={accentColor} strokeWidth="2.5" />
+          <path d="M 35,50 A 15,15 0 0,0 65,50 A 13,13 0 0,1 35,50" fill={accentColor} />
+          <circle cx="50" cy="50" r="22" fill="none" stroke={accentColor} strokeWidth="1" strokeDasharray="3,3" />
+        </svg>
+      );
+    case "empress":
+      return (
+        <svg viewBox="0 0 100 100" className="w-16 h-16 opacity-95 mx-auto">
+          <circle cx="50" cy="40" r="18" fill="none" stroke={accentColor} strokeWidth="2" />
+          <path d="M 35,50 Q 50,75 65,50" fill="none" stroke={accentColor} strokeWidth="1.5" />
+          <circle cx="50" cy="58" r="6" fill="none" stroke={accentColor} strokeWidth="1.5" />
+          <line x1="50" y1="64" x2="50" y2="78" stroke={accentColor} strokeWidth="1.5" />
+          <line x1="43" y1="71" x2="57" y2="71" stroke={accentColor} strokeWidth="1.5" />
+          {[0, 90, 180, 270].map((angle, i) => {
+            const rad = (angle * Math.PI) / 180;
+            const sx = 50 + 26 * Math.cos(rad);
+            const sy = 40 + 26 * Math.sin(rad);
+            return <circle key={i} cx={sx} cy={sy} r="1.5" fill="#fff" className="animate-pulse" />;
+          })}
+        </svg>
+      );
+    case "emperor":
+      return (
+        <svg viewBox="0 0 100 100" className="w-16 h-16 opacity-95 mx-auto">
+          <rect x="30" y="30" width="40" height="40" rx="3" fill="none" stroke={accentColor} strokeWidth="1" className="opacity-10" />
+          <path d="M 35,32 Q 50,52 65,32" fill="none" stroke={accentColor} strokeWidth="2" />
+          <path d="M 32,38 Q 20,40 25,28 Q 30,16 38,32" fill="none" stroke={accentColor} strokeWidth="1.5" />
+          <path d="M 68,38 Q 80,40 75,28 Q 70,16 62,32" fill="none" stroke={accentColor} strokeWidth="1.5" />
+          <line x1="50" y1="20" x2="50" y2="80" stroke={accentColor} strokeWidth="2.5" />
+          <circle cx="50" cy="18" r="4.5" fill={accentColor} />
+        </svg>
+      );
+    case "hierophant":
+      return (
+        <svg viewBox="0 0 100 100" className="w-16 h-16 opacity-95 mx-auto">
+          <line x1="50" y1="15" x2="50" y2="80" stroke={accentColor} strokeWidth="2.5" />
+          <line x1="30" y1="30" x2="70" y2="30" stroke={accentColor} strokeWidth="2.5" />
+          <line x1="35" y1="42" x2="65" y2="42" stroke={accentColor} strokeWidth="2" />
+          <line x1="42" y1="54" x2="58" y2="54" stroke={accentColor} strokeWidth="1.5" />
+          <circle cx="39" cy="77" r="3" fill="none" stroke={accentColor} strokeWidth="1.5" />
+          <circle cx="61" cy="77" r="3" fill="none" stroke={accentColor} strokeWidth="1.5" />
+        </svg>
+      );
+    case "lovers":
+      return (
+        <svg viewBox="0 0 100 100" className="w-16 h-16 opacity-95 mx-auto">
+          <circle cx="32" cy="50" r="10" fill="none" stroke={accentColor} strokeWidth="1.5" />
+          <circle cx="68" cy="50" r="10" fill="none" stroke={accentColor} strokeWidth="1.5" />
+          <path d="M 50,36 C 50,28 38,28 38,36 C 38,44 50,55 50,55 C 50,55 62,44 62,36 C 62,28 50,28 50,36 Z" fill={accentColor} className="opacity-75" />
+        </svg>
+      );
+    case "chariot":
+      return (
+        <svg viewBox="0 0 100 100" className="w-16 h-16 opacity-95 mx-auto">
+          <polygon points="50,15 15,45 85,45" fill="none" stroke={accentColor} strokeWidth="1.5" />
+          <line x1="30" y1="45" x2="30" y2="85" stroke={accentColor} strokeWidth="2" />
+          <line x1="70" y1="45" x2="70" y2="85" stroke={accentColor} strokeWidth="2" />
+          <circle cx="50" cy="65" r="9" fill="none" stroke={accentColor} strokeWidth="2" />
+        </svg>
+      );
+    case "strength":
+      return (
+        <svg viewBox="0 0 100 100" className="w-16 h-16 opacity-95 mx-auto">
+          <path d="M 50,20 C 35,20 35,32 50,32 C 65,32 65,20 50,20 Z" fill="none" stroke={accentColor} strokeWidth="1.5" />
+          <circle cx="50" cy="48" r="12" fill="none" stroke={accentColor} strokeWidth="1.1" strokeDasharray="2,2" />
+          <polygon points="50,40 42,56 58,56" fill="none" stroke={accentColor} strokeWidth="2" />
+        </svg>
+      );
+    case "hermit":
+      return (
+        <svg viewBox="0 0 100 100" className="w-16 h-16 opacity-95 mx-auto">
+          <circle cx="50" cy="45" r="14" fill="none" stroke={accentColor} strokeWidth="2" />
+          <polygon points="50,36 58,50 42,50" fill="none" stroke="#fff" strokeWidth="1" />
+          <polygon points="50,54 58,40 42,40" fill="none" stroke="#fff" strokeWidth="1" />
+          <line x1="30" y1="20" x2="30" y2="80" stroke={accentColor} strokeWidth="2" />
+        </svg>
+      );
+    case "wheel":
+      return (
+        <svg viewBox="0 0 100 100" className="w-16 h-16 opacity-95 mx-auto">
+          <circle cx="50" cy="50" r="22" fill="none" stroke={accentColor} strokeWidth="2" />
+          <circle cx="50" cy="50" r="10" fill="none" stroke={accentColor} strokeWidth="1" strokeDasharray="4,2" />
+          {[0, 90, 180, 270].map((angle, i) => {
+            const rad = (angle * Math.PI) / 180;
+            const sx = 50 + 22 * Math.cos(rad);
+            const sy = 50 + 22 * Math.sin(rad);
+            return <line key={i} x1="50" y1="50" x2={sx} y2={sy} stroke={accentColor} strokeWidth="1" />;
+          })}
+        </svg>
+      );
+    case "justice":
+      return (
+        <svg viewBox="0 0 100 100" className="w-16 h-16 opacity-95 mx-auto">
+          <line x1="50" y1="20" x2="50" y2="78" stroke={accentColor} strokeWidth="2.5" />
+          <line x1="25" y1="36" x2="75" y2="36" stroke={accentColor} strokeWidth="2.5" />
+          <line x1="25" y1="36" x2="18" y2="60" stroke={accentColor} strokeWidth="1" />
+          <line x1="75" y1="36" x2="82" y2="60" stroke={accentColor} strokeWidth="1" />
+          <path d="M 14,60 Q 25,70 36,60 Z" fill="none" stroke={accentColor} strokeWidth="1.5" />
+          <path d="M 64,60 Q 75,70 86,60 Z" fill="none" stroke={accentColor} strokeWidth="1.5" />
+        </svg>
+      );
+    case "hanged":
+      return (
+        <svg viewBox="0 0 100 100" className="w-16 h-16 opacity-95 mx-auto">
+          <circle cx="50" cy="74" r="14" fill="none" stroke={accentColor} strokeWidth="1.5" className="animate-pulse" />
+          <line x1="50" y1="15" x2="50" y2="60" stroke={accentColor} strokeWidth="2" />
+          <polygon points="50,60 38,40 62,40" fill="none" stroke={accentColor} strokeWidth="2" />
+        </svg>
+      );
+    case "death":
+      return (
+        <svg viewBox="0 0 100 100" className="w-16 h-16 opacity-95 mx-auto">
+          <path d="M 15,75 Q 50,55 85,75" fill="none" stroke={accentColor} strokeWidth="2" />
+          <path d="M 50,75 L 50,28" stroke={accentColor} strokeWidth="2" />
+          <path d="M 50,28 C 30,35 25,15 50,15 C 75,15 70,35 50,28 Z" fill="none" stroke={accentColor} strokeWidth="1.5" />
+        </svg>
+      );
+    case "temperance":
+      return (
+        <svg viewBox="0 0 100 100" className="w-16 h-16 opacity-95 mx-auto">
+          <path d="M 30,22 L 40,22 L 35,42 Z" fill="none" stroke={accentColor} strokeWidth="1.5" />
+          <path d="M 60,68 L 70,68 L 65,48 Z" fill="none" stroke={accentColor} strokeWidth="1.5" />
+          <path d="M 35,32 Q 50,45 65,58" fill="none" stroke={accentColor} strokeWidth="2" className="animate-pulse" strokeDasharray="4,2" />
+        </svg>
+      );
+    case "devil":
+      return (
+        <svg viewBox="0 0 100 100" className="w-16 h-16 opacity-95 mx-auto">
+          <path d="M 30,25 Q 50,45 70,25" fill="none" stroke={accentColor} strokeWidth="2" />
+          <line x1="50" y1="35" x2="50" y2="80" stroke={accentColor} strokeWidth="2" />
+          <circle cx="50" cy="50" r="14" fill="none" stroke={accentColor} strokeWidth="1.5" />
+        </svg>
+      );
+    case "tower":
+      return (
+        <svg viewBox="0 0 100 100" className="w-16 h-16 opacity-95 mx-auto">
+          <line x1="35" y1="80" x2="42" y2="30" stroke={accentColor} strokeWidth="2" />
+          <line x1="65" y1="80" x2="58" y2="30" stroke={accentColor} strokeWidth="2" />
+          <path d="M 70,12 L 53,30 L 61,33 L 42,54" fill="none" stroke="#fff" strokeWidth="2" className="animate-pulse" />
+        </svg>
+      );
+    case "star":
+      return (
+        <svg viewBox="0 0 100 100" className="w-16 h-16 opacity-95 mx-auto">
+          <polygon points="50,15 54,34 72,34 58,45 62,64 50,52 38,64 42,45 28,34 46,34" fill="none" stroke={accentColor} strokeWidth="2" />
+          <circle cx="20" cy="24" r="1" fill="#fff" />
+          <circle cx="80" cy="24" r="1.5" fill="#fff" className="animate-pulse" />
+        </svg>
+      );
+    case "moon":
+      return (
+        <svg viewBox="0 0 100 100" className="w-16 h-16 opacity-95 mx-auto">
+          <circle cx="50" cy="42" r="18" fill="none" stroke={accentColor} strokeWidth="1.5" />
+          <path d="M 50,24 A 18,18 0 0,0 50,60" fill={accentColor} className="opacity-40" />
+          <rect x="18" y="44" width="4" height="38" fill="none" stroke={accentColor} strokeWidth="1.5" />
+          <rect x="78" y="44" width="4" height="38" fill="none" stroke={accentColor} strokeWidth="1.5" />
+        </svg>
+      );
+    case "sun":
+      return (
+        <svg viewBox="0 0 100 100" className="w-16 h-16 opacity-95 mx-auto">
+          <circle cx="50" cy="50" r="16" fill="none" stroke={accentColor} strokeWidth="2" />
+          {[0, 60, 120, 180, 240, 300].map((angle, i) => {
+            const rad = (angle * Math.PI) / 180;
+            const x1 = 50 + 19 * Math.cos(rad);
+            const y1 = 50 + 19 * Math.sin(rad);
+            const x2 = 50 + 28 * Math.cos(rad);
+            const y2 = 50 + 28 * Math.sin(rad);
+            return <line key={i} x1={x1} y1={y1} x2={x2} y2={y2} stroke={accentColor} strokeWidth="1.5" />;
+          })}
+        </svg>
+      );
+    case "judgment":
+      return (
+        <svg viewBox="0 0 100 100" className="w-16 h-16 opacity-95 mx-auto">
+          <path d="M 50,15 L 44,48 L 56,48 Z" fill="none" stroke={accentColor} strokeWidth="1.5" />
+          <path d="M 44,48 Q 50,65 32,85 L 68,85 Q 50,65 56,48" fill="none" stroke={accentColor} strokeWidth="1.5" />
+        </svg>
+      );
+    case "world":
+      return (
+        <svg viewBox="0 0 100 100" className="w-16 h-16 opacity-95 mx-auto">
+          <ellipse cx="50" cy="50" rx="20" ry="28" fill="none" stroke={accentColor} strokeWidth="2" />
+          <circle cx="50" cy="50" r="6" fill="none" stroke="#fff" strokeWidth="2" />
+        </svg>
+      );
+    default:
+      return null;
+  }
+};
+
 export default function App() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -104,6 +607,7 @@ export default function App() {
   }>>([]);
 
   const [isMirrorFlipped, setIsMirrorFlipped] = useState(false);
+  const [tarotSynthesis, setTarotSynthesis] = useState<any | null>(null);
 
   const fetchAstroData = async (lat: number, lng: number) => {
     try {
@@ -255,6 +759,151 @@ export default function App() {
         };
       });
       setAll12Transits(transitList);
+ 
+      // 3. Daily Tarot Card Synthesis and Environmental Analytics
+      const activeLat = location?.lat ?? 27.67;
+      const activeLng = location?.lng ?? 85.42;
+
+      let weatherTemp = 24.5;
+      let weatherCode = 0;
+      let weatherText = "Mainly Clear Sky";
+      let isWeatherFetched = false;
+      try {
+        const weatherRes = await fetch(`https://api.open-meteo.com/v1/forecast?latitude=${activeLat}&longitude=${activeLng}&current_weather=true`);
+        const weatherData = await weatherRes.json();
+        if (weatherData && weatherData.current_weather) {
+          weatherTemp = weatherData.current_weather.temperature;
+          weatherCode = weatherData.current_weather.weathercode;
+          weatherText = getWeatherCondition(weatherCode);
+          isWeatherFetched = true;
+        }
+      } catch (err) {
+        console.warn("Weather fetch failed, utilizing baseline forecast", err);
+      }
+
+      let finalCity = "Bhaktapur";
+      let finalCountry = "Nepal";
+      let isNepal = true;
+
+      if (activeLat >= 26.0 && activeLat <= 31.0 && activeLng >= 80.0 && activeLng <= 89.0) {
+        finalCity = "Bhaktapur";
+        finalCountry = "Nepal";
+        isNepal = true;
+      } else {
+        isNepal = false;
+        if (Math.abs(activeLat - 40.71) < 1.5 && Math.abs(activeLng - (-74.0)) < 1.5) {
+          finalCity = "New York City";
+          finalCountry = "USA";
+        } else if (Math.abs(activeLat - 51.5) < 1.5 && Math.abs(activeLng - 0) < 1.5) {
+          finalCity = "London";
+          finalCountry = "UK";
+        } else if (Math.abs(activeLat - 35.67) < 1.5 && Math.abs(activeLng - 139.65) < 1.5) {
+          finalCity = "Tokyo";
+          finalCountry = "Japan";
+        } else if (Math.abs(activeLat - (-33.86)) < 1.5 && Math.abs(activeLng - 151.2) < 1.5) {
+          finalCity = "Sydney";
+          finalCountry = "Australia";
+        } else if (Math.abs(activeLat - 28.6) < 1.5 && Math.abs(activeLng - 77.2) < 1.5) {
+          finalCity = "New Delhi";
+          finalCountry = "India";
+        } else {
+          try {
+            const geoRes = await fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${activeLat}&lon=${activeLng}&zoom=10`, {
+              headers: { "User-Agent": "AstroCalibrateApplet/1.0" }
+            });
+            const geoData = await geoRes.json();
+            if (geoData && geoData.address) {
+              finalCity = geoData.address.city || geoData.address.town || geoData.address.suburb || geoData.address.village || "Ecliptic Node";
+              finalCountry = geoData.address.country || "Ecliptic Realm";
+              if (finalCountry.toLowerCase().includes("nepal")) {
+                isNepal = true;
+              }
+            } else {
+              finalCity = "Ecliptic Node";
+              finalCountry = "Global Grid";
+            }
+          } catch (_) {
+            finalCity = `Lat: ${activeLat.toFixed(1)}°`;
+            finalCountry = `Lng: ${activeLng.toFixed(1)}°`;
+          }
+        }
+      }
+
+      let newsHeadline = "";
+      let marketName = "";
+      let marketIndex = "";
+      let marketChange = "";
+      let marketDirection: 'up' | 'down' | 'neutral' = 'neutral';
+
+      const daySeed = now.getDate() + now.getMonth() * 31;
+      const indexDiff = ((daySeed % 11) - 5) * 4.3;
+
+      if (isNepal) {
+        marketName = "NEPSE (Nepal)";
+        const baseNep = 2140.25;
+        const currentNep = baseNep + indexDiff;
+        marketIndex = `${currentNep.toFixed(2)}`;
+        marketChange = `${indexDiff >= 0 ? '+' : ''}${indexDiff.toFixed(2)} (${indexDiff >= 0 ? '+' : ''}${((indexDiff / baseNep) * 100).toFixed(2)}%)`;
+        marketDirection = indexDiff >= 0 ? 'up' : 'down';
+        
+        const headings = [
+          "Bhaktapur concludes ancient cultural cycles as planetary alignment shifts",
+          "Nepal Central Bank coordinates macro-liquidity framework with local exchanges",
+          "Kathmandu Valley launches clean-energy solar grids across key municipal hubs",
+          "Himalayan clean water initiative receives major global ecological grants"
+        ];
+        newsHeadline = headings[daySeed % headings.length];
+      } else if (finalCountry === "USA" || finalCountry.includes("America")) {
+        marketName = "S&P 500 (USA)";
+        const baseSP = 5210.50;
+        const currentSP = baseSP + indexDiff * 5;
+        marketIndex = `${currentSP.toFixed(2)}`;
+        marketChange = `${indexDiff >= 0 ? '+' : ''}${(indexDiff * 5).toFixed(2)} (${indexDiff >= 0 ? '+' : ''}${((indexDiff * 5 / baseSP) * 100).toFixed(2)}%)`;
+        marketDirection = indexDiff >= 0 ? 'up' : 'down';
+
+        const headings = [
+          "New York Metro coordinates zero-emission transit policy for micro-mobility",
+          "Tech conglomerates announce robust next-gen computing infrastructure in NY",
+          "East Coast sustainable trade corridors expand as global logisticians coordinate"
+        ];
+        newsHeadline = headings[daySeed % headings.length];
+      } else {
+        marketName = "MSCI Global Index";
+        const baseGlobal = 3340.10;
+        const currentGlobal = baseGlobal + indexDiff * 3;
+        marketIndex = `${currentGlobal.toFixed(2)}`;
+        marketChange = `${indexDiff >= 0 ? '+' : ''}${(indexDiff * 3).toFixed(2)} (${indexDiff >= 0 ? '+' : ''}${((indexDiff * 3 / baseGlobal) * 100).toFixed(2)}%)`;
+        marketDirection = indexDiff >= 0 ? 'up' : 'down';
+
+        const headings = [
+          "International carbon credit initiative signs historical multi-lateral contract",
+          "Global supply networks stabilize as container shipping benchmarks decline",
+          "Clean hydrogen fusion projects receive multi-national technical research funding"
+        ];
+        newsHeadline = headings[daySeed % headings.length];
+      }
+
+      const dateString = now.toISOString().split('T')[0];
+      const drawnCard = selectDailyTarot(activeLat, activeLng, dateString, weatherCode, marketDirection, synergyValue);
+
+      setTarotSynthesis({
+        card: drawnCard,
+        weather: {
+          temp: weatherTemp,
+          text: weatherText,
+          code: weatherCode,
+          isFetched: isWeatherFetched
+        },
+        news: {
+          headline: newsHeadline,
+          marketName,
+          marketIndex,
+          marketChange,
+          marketDirection,
+          cityName: finalCity,
+          countryName: finalCountry
+        }
+      });
 
     } catch (err) {
       console.error("Calculate synergy error", err);
@@ -548,13 +1197,6 @@ export default function App() {
                         </div>
                       )}
                     </div>
-
-                    <div className="bg-gold/5 border border-gold/10 rounded-2xl p-6 text-left backdrop-blur-md">
-                      <div className="text-[10px] text-gold uppercase tracking-widest mb-3">Celestial Advice</div>
-                      <p className="text-gold/90 text-sm leading-relaxed">
-                        {synergy?.advice}
-                      </p>
-                    </div>
                   </div>
 
                   {error && <p className="mt-4 text-xs text-red-400 opacity-50 max-w-xs">{error}</p>}
@@ -563,42 +1205,148 @@ export default function App() {
             </AnimatePresence>
           </main>
 
-          {/* Right Sidebar: Muhurta Cycle */}
-          <aside className="bg-white/[0.03] border border-white/5 rounded-sm p-6 flex flex-col h-full max-h-[600px]">
-            <h2 className="text-[10px] uppercase tracking-[0.3em] text-dim mb-6 border-b border-white/5 pb-3">Muhurta Cycle</h2>
-            <div className="space-y-1 overflow-y-auto pr-2 custom-scrollbar">
-              {MUHURTAS.map((m) => {
-                const isActive = currentMuhurta?.id === m.id;
-                const perc = ((m.id) * 3.33);
+          {/* Right Column Container */}
+          <div className="flex flex-col gap-6">
+            {/* Daily Cosmic Tarot Card */}
+            {tarotSynthesis && (
+              <div className="bg-[#0b0c10] border border-white/10 rounded-2xl p-5 flex flex-col shadow-2xl relative overflow-hidden group">
+                <div className="absolute inset-0 bg-gradient-to-b from-white/[0.01] to-transparent pointer-events-none" />
                 
-                // Calculate time range for this specific muhurta
-                let timeStr = "";
-                if (sunrise) {
-                  const s = new Date(sunrise);
-                  const start = new Date(s.getTime() + ((m.id - 1) * 48 * 60 * 1000));
-                  const end = new Date(start.getTime() + (48 * 60 * 1000));
-                  timeStr = `\nTime: ${start.toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'})} - ${end.toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'})}`;
-                }
+                <div className="flex items-center justify-between mb-4 pb-2 border-b border-white/5">
+                  <span className="text-[9px] uppercase tracking-[0.2em] text-gold font-mono flex items-center gap-1.5">
+                    <Sparkles className="w-3 h-3 text-gold animate-pulse" /> Ecliptic Tarot Synthesis
+                  </span>
+                  <span className="text-[9px] font-mono text-zinc-500 uppercase">
+                    Today's Gateway
+                  </span>
+                </div>
 
-                return (
-                  <div 
-                    key={m.id}
-                    title={`${m.nature}: ${m.description}\nFocus: ${m.focus}${timeStr}`}
-                    className={`flex justify-between py-1.5 px-3 text-[10px] transition-all duration-300 rounded cursor-help group ${
-                      isActive ? 'bg-gold/10 text-gold font-bold opacity-100 border-l-2 border-gold shadow-[inset_0_0_10px_rgba(212,175,55,0.05)]' : 'opacity-40 text-dim hover:opacity-100 hover:bg-white/5'
-                    }`}
-                  >
-                    <span className="flex items-center gap-2">
-                       <span className={`w-1 h-1 rounded-full ${isActive ? 'bg-gold animate-pulse' : 'bg-transparent'}`} />
-                       <span className="opacity-30">{m.id.toString().padStart(2, '0')}</span>
-                       {m.name}
+                {/* The Physical Card Rendering */}
+                <div className="relative w-full aspect-[2/3.2] max-w-[190px] mx-auto mb-5 rounded-2xl border-2 border-gold/30 bg-[#07080e] shadow-[0_0_25px_rgba(212,175,55,0.05)] p-3 flex flex-col justify-between group-hover:border-gold/60 group-hover:shadow-[0_0_40px_rgba(212,175,55,0.12)] transition-all duration-500 overflow-hidden">
+                  {/* Mystic Inner Frame */}
+                  <div className="absolute inset-1 border border-gold/15 rounded-[12px] pointer-events-none" />
+                  
+                  {/* Card Header */}
+                  <div className="text-center z-10 pt-1">
+                    <span className="text-[10px] font-mono text-gold/60 block tracking-[0.3em] uppercase leading-none font-semibold">
+                      {tarotSynthesis.card.number}
                     </span>
-                    <span className="font-mono group-hover:text-gold transition-colors">{perc.toFixed(2)}%</span>
+                    <span className="text-xs font-serif font-black tracking-widest text-white block uppercase mt-0.5">
+                      {tarotSynthesis.card.name}
+                    </span>
                   </div>
-                );
-              })}
-            </div>
-          </aside>
+
+                  {/* Core Celestial Symbol - Placed In Centre */}
+                  <div className="my-auto flex items-center justify-center relative w-24 h-24 mx-auto bg-black rounded-full border border-white/5 shadow-inner z-10">
+                    <div className="absolute inset-0 rounded-full bg-radial-gradient from-white/[0.03] to-transparent" />
+                    {renderTarotIcon(tarotSynthesis.card.iconType, tarotSynthesis.card.accentColor)}
+                  </div>
+
+                  {/* Card Footer */}
+                  <div className="text-center z-10 pb-1">
+                    <span className="text-[9px] uppercase tracking-[0.2em] text-gold font-mono bg-gold/5 px-2 py-0.5 rounded border border-gold/10 inline-block">
+                      {tarotSynthesis.card.concept}
+                    </span>
+                  </div>
+                </div>
+
+                {/* Card Interpretation and Dynamic Synthesis References */}
+                <div className="space-y-4">
+                  <div>
+                    <h3 className="text-sm font-semibold text-white/95 leading-tight">
+                      {tarotSynthesis.card.concept} • {tarotSynthesis.card.name}
+                    </h3>
+                    <p className="text-zinc-400 text-[11px] leading-relaxed mt-1 font-light">
+                      {tarotSynthesis.card.generalMeaning}
+                    </p>
+                  </div>
+
+                  <div className="p-3 bg-white/[0.02] border border-white/5 rounded-xl">
+                    <span className="text-[8px] uppercase tracking-widest text-gold font-mono block mb-1">
+                      Cosmic Direct Guidance
+                    </span>
+                    <p className="text-amber-100/90 text-[11px] font-light leading-relaxed">
+                      {tarotSynthesis.card.cosmicGuidance}
+                    </p>
+                  </div>
+
+                  {/* GPS Environmental Context Panel */}
+                  <div className="pt-3 border-t border-white/5 space-y-2">
+                    <div className="text-[8px] uppercase tracking-widest text-zinc-500 font-mono">
+                      GPS Calibrated Inputs ({tarotSynthesis.news.cityName})
+                    </div>
+                    
+                    <div className="grid grid-cols-1 gap-1.5 font-mono text-[9px] text-zinc-400">
+                      {/* Weather Row */}
+                      <div className="flex items-center gap-2 bg-white/[0.01] px-2.5 py-1 rounded border border-white/[0.02]">
+                        <CloudSun className="w-3 h-3 text-gold/80 shrink-0" />
+                        <span className="truncate">
+                          Weather: {tarotSynthesis.weather.temp}°C, {tarotSynthesis.weather.text}
+                        </span>
+                      </div>
+
+                      {/* Market Row */}
+                      <div className="flex items-center gap-2 bg-white/[0.01] px-2.5 py-1 rounded border border-white/[0.02]">
+                        <TrendingUp className={`w-3 h-3 shrink-0 ${tarotSynthesis.news.marketDirection === 'up' ? 'text-emerald-400' : 'text-red-400'}`} />
+                        <span className="truncate">
+                          {tarotSynthesis.news.marketName}: {tarotSynthesis.news.marketIndex} ({tarotSynthesis.news.marketChange})
+                        </span>
+                      </div>
+
+                      {/* Local News Headline Row */}
+                      <div className="flex items-start gap-2 bg-white/[0.01] px-2.5 py-1.5 rounded border border-white/[0.02]">
+                        <Newspaper className="w-3 h-3 text-blue-400 shrink-0 mt-0.5" />
+                        <span className="leading-snug break-words">
+                          News: "{tarotSynthesis.news.headline}"
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {/* Right Sidebar: Muhurta Cycle */}
+            <aside className="bg-white/[0.03] border border-white/5 rounded-xl p-5 flex flex-col h-[320px]">
+              <div className="flex items-center justify-between mb-3 border-b border-white/5 pb-2">
+                <h2 className="text-[10px] uppercase tracking-[0.3em] text-zinc-400">Muhurta Cycle</h2>
+                <span className="text-[8px] font-mono text-zinc-500 uppercase">30 Divisions</span>
+              </div>
+              
+              <div className="space-y-1 overflow-y-auto pr-2 custom-scrollbar flex-1">
+                {MUHURTAS.map((m) => {
+                  const isActive = currentMuhurta?.id === m.id;
+                  const perc = ((m.id) * 3.33);
+                  
+                  // Calculate time range for this specific muhurta
+                  let timeStr = "";
+                  if (sunrise) {
+                    const s = new Date(sunrise);
+                    const start = new Date(s.getTime() + ((m.id - 1) * 48 * 60 * 1000));
+                    const end = new Date(start.getTime() + (48 * 60 * 1000));
+                    timeStr = `\nTime: ${start.toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'})} - ${end.toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'})}`;
+                  }
+
+                  return (
+                    <div 
+                      key={m.id}
+                      title={`${m.nature}: ${m.description}\nFocus: ${m.focus}${timeStr}`}
+                      className={`flex justify-between py-1.5 px-3 text-[10px] transition-all duration-300 rounded cursor-help group ${
+                        isActive ? 'bg-gold/10 text-gold font-bold opacity-100 border-l-2 border-gold shadow-[inset_0_0_10px_rgba(212,175,55,0.05)]' : 'opacity-40 text-dim hover:opacity-100 hover:bg-white/5'
+                      }`}
+                    >
+                      <span className="flex items-center gap-2">
+                         <span className={`w-1 h-1 rounded-full ${isActive ? 'bg-gold animate-pulse' : 'bg-transparent'}`} />
+                         <span className="opacity-30">{m.id.toString().padStart(2, '0')}</span>
+                         {m.name}
+                      </span>
+                      <span className="font-mono group-hover:text-gold transition-colors">{perc.toFixed(2)}%</span>
+                    </div>
+                  );
+                })}
+              </div>
+            </aside>
+          </div>
         </div>
 
         {/* Moon Zodiac Transit Section */}
@@ -695,18 +1443,12 @@ export default function App() {
                         <span className="text-[9px] uppercase px-2 py-0.5 rounded bg-gold/5 text-gold font-mono font-semibold">Lon Range: {Math.floor(moonTransitPresent.longitude / 30) * 30}° – {Math.floor(moonTransitPresent.longitude / 30) * 30 + 30}°</span>
                       </div>
  
-                      {/* Astrological & Vedic Celestial Alignment */}
-                      <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6">
+                      {/* Vedic Celestial Alignment */}
+                      <div className="mt-6">
                         <div className="space-y-1">
                           <span className="text-[10px] text-amber-300 font-medium uppercase tracking-widest block">Vedic Lunar View</span>
                           <p className="text-[11px] text-zinc-300 leading-relaxed font-light">
                             {moonTransitPresent.constellation.vedicView}
-                          </p>
-                        </div>
-                        <div className="space-y-1 border-t md:border-t-0 md:border-l border-white/5 pt-4 md:pt-0 md:pl-4">
-                          <span className="text-[10px] text-blue-300 font-medium uppercase tracking-widest block">Astrological Influence</span>
-                          <p className="text-[11px] text-zinc-300 leading-relaxed font-light">
-                            {moonTransitPresent.constellation.astrologicalView}
                           </p>
                         </div>
                       </div>
