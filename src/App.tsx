@@ -905,115 +905,90 @@ export default function App() {
       };
 
       try {
-        if (isNepal) {
-          // Attempt to fetch custom MeroLagani RSS and parse NEPSE index
-          const nepseUrl = `https://api.rss2json.com/v1/api.json?rss_url=https://merolagani.com/RssFeed.aspx?type=news`;
-          const newsUrl = `https://api.rss2json.com/v1/api.json?rss_url=https://english.onlinekhabar.com/feed`;
+        const nepseUrl = `https://api.rss2json.com/v1/api.json?rss_url=https://merolagani.com/RssFeed.aspx?type=news`;
+        const newsQuery = `${finalCity} ${finalCountry}`.trim();
+        const localNewsUrl = `https://api.rss2json.com/v1/api.json?rss_url=${encodeURIComponent(`https://news.google.com/rss/search?q=${newsQuery}`)}`;
+        const fallbackNewsUrl = `https://api.rss2json.com/v1/api.json?rss_url=https://english.onlinekhabar.com/feed`;
 
-          const [nepseRes, newsRes] = await Promise.all([
-            fetch(nepseUrl).then(r => r.json()).catch(() => null),
-            fetch(newsUrl).then(r => r.json()).catch(() => null)
-          ]);
+        const [nepseRes, localNewsRes, fallbackNewsRes] = await Promise.all([
+          fetch(nepseUrl).then(r => r.json()).catch(() => null),
+          fetch(localNewsUrl).then(r => r.json()).catch(() => null),
+          fetch(fallbackNewsUrl).then(r => r.json()).catch(() => null)
+        ]);
 
-          let foundNepse = false;
-          let foundNews = false;
+        let foundNepse = false;
+        let foundNews = false;
 
-          if (nepseRes && nepseRes.status === "ok" && Array.isArray(nepseRes.items)) {
-            // Traverse items to find NEPSE update
-            const nepseItem = nepseRes.items.find((item: any) => 
-              item.title.toUpperCase().includes("NEPSE") || 
-              item.title.toUpperCase().includes("INDEX") ||
-              item.title.toUpperCase().includes("MARKET")
-            );
+        // 1. Process NEPSE Index Data
+        if (nepseRes && nepseRes.status === "ok" && Array.isArray(nepseRes.items)) {
+          const nepseItem = nepseRes.items.find((item: any) => 
+            item.title.toUpperCase().includes("NEPSE") || 
+            item.title.toUpperCase().includes("INDEX") ||
+            item.title.toUpperCase().includes("MARKET") ||
+            item.title.toUpperCase().includes("SHARE")
+          );
 
-            if (nepseItem && isDateToday(nepseItem.pubDate)) {
-              const numbers = nepseItem.title.match(/\b[123]\d{3}(?:\.\d+)?\b/);
-              const indexValue = numbers ? parseFloat(numbers[0]) : null;
-              
-              if (indexValue) {
-                marketName = "NEPSE (Nepal)";
-                marketIndex = indexValue.toFixed(2);
-                
-                let dir: 'up' | 'down' | 'neutral' = 'neutral';
-                const titleLower = nepseItem.title.toLowerCase();
-                if (titleLower.includes("increase") || titleLower.includes("gain") || titleLower.includes("up") || titleLower.includes("climbs") || titleLower.includes("advance") || titleLower.includes("rise")) {
-                  dir = 'up';
-                } else if (titleLower.includes("decrease") || titleLower.includes("loss") || titleLower.includes("down") || titleLower.includes("falls") || titleLower.includes("slips") || titleLower.includes("decline")) {
-                  dir = 'down';
-                }
-                marketDirection = dir;
-
-                const pointsMatch = nepseItem.title.match(/(\d+\.\d+)\s*point/i);
-                const pointChange = pointsMatch ? parseFloat(pointsMatch[1]) : null;
-                if (pointChange) {
-                  marketChange = `${dir === 'up' ? '+' : '-'}${pointChange.toFixed(2)} (${dir === 'up' ? '+' : '-'}${((pointChange / indexValue) * 100).toFixed(2)}%)`;
-                } else {
-                  marketChange = dir === 'up' ? '+0.45%' : dir === 'down' ? '-0.45%' : '0.00%';
-                }
-                foundNepse = true;
-              }
-            }
-          }
-
-          if (newsRes && newsRes.status === "ok" && Array.isArray(newsRes.items) && newsRes.items.length > 0) {
-            const newsItem = newsRes.items[0];
-            if (newsItem && isDateToday(newsItem.pubDate)) {
-              newsHeadline = newsItem.title;
-              foundNews = true;
-            }
-          }
-
-          if (foundNepse && foundNews) {
-            isRealDataCombined = true;
-          }
-        } else {
-          // If NOT in Nepal, attempt to fetch global S&P 500 equivalent and US News
-          const globalFinanceUrl = `https://api.rss2json.com/v1/api.json?rss_url=https://finance.yahoo.com/rss/topstories`;
-          const globalNewsUrl = `https://api.rss2json.com/v1/api.json?rss_url=https://news.google.com/rss?hl=en-US&gl=US&ceid=US:en`;
-
-          const [financeRes, newsRes] = await Promise.all([
-            fetch(globalFinanceUrl).then(r => r.json()).catch(() => null),
-            fetch(globalNewsUrl).then(r => r.json()).catch(() => null)
-          ]);
-
-          let foundFinance = false;
-          let foundNews = false;
-
-          if (financeRes && financeRes.status === "ok" && Array.isArray(financeRes.items) && financeRes.items.length > 0) {
-            const financeItem = financeRes.items[0];
-            if (financeItem && isDateToday(financeItem.pubDate)) {
-              marketName = "S&P 500 (USA)";
-              const numMatch = financeItem.title.match(/\b([456]\d{3}(?:\.\d+)?)\b/);
-              const indexValue = numMatch ? parseFloat(numMatch[1]) : 5210.50;
+          if (nepseItem && isDateToday(nepseItem.pubDate)) {
+            const numbers = nepseItem.title.match(/\b[123]\d{3}(?:\.\d+)?\b/);
+            const indexValue = numbers ? parseFloat(numbers[0]) : null;
+            
+            if (indexValue) {
+              marketName = "NEPSE (Nepal)";
               marketIndex = indexValue.toFixed(2);
               
               let dir: 'up' | 'down' | 'neutral' = 'neutral';
-              const titleLower = financeItem.title.toLowerCase();
-              if (titleLower.includes("up") || titleLower.includes("gains") || titleLower.includes("rises") || titleLower.includes("climbs") || titleLower.includes("higher") || titleLower.includes("advance")) {
+              const titleLower = nepseItem.title.toLowerCase();
+              if (titleLower.includes("increase") || titleLower.includes("gain") || titleLower.includes("up") || titleLower.includes("climbs") || titleLower.includes("advance") || titleLower.includes("rise")) {
                 dir = 'up';
-              } else if (titleLower.includes("down") || titleLower.includes("falls") || titleLower.includes("slips") || titleLower.includes("lower") || titleLower.includes("decline")) {
+              } else if (titleLower.includes("decrease") || titleLower.includes("loss") || titleLower.includes("down") || titleLower.includes("falls") || titleLower.includes("slips") || titleLower.includes("decline")) {
                 dir = 'down';
               }
               marketDirection = dir;
-              marketChange = dir === 'up' ? '+0.35%' : dir === 'down' ? '-0.35%' : '0.00%';
-              foundFinance = true;
-            }
-          }
 
-          if (newsRes && newsRes.status === "ok" && Array.isArray(newsRes.items) && newsRes.items.length > 0) {
-            const newsItem = newsRes.items[0];
-            if (newsItem && isDateToday(newsItem.pubDate)) {
-              newsHeadline = newsItem.title;
-              foundNews = true;
+              const pointsMatch = nepseItem.title.match(/(\d+\.\d+)\s*point/i);
+              const pointChange = pointsMatch ? parseFloat(pointsMatch[1]) : null;
+              if (pointChange) {
+                marketChange = `${dir === 'up' ? '+' : '-'}${pointChange.toFixed(2)} (${dir === 'up' ? '+' : '-'}${((pointChange / indexValue) * 100).toFixed(2)}%)`;
+              } else {
+                marketChange = dir === 'up' ? '+0.45%' : dir === 'down' ? '-0.45%' : '0.00%';
+              }
+              foundNepse = true;
             }
-          }
-
-          if (foundFinance && foundNews) {
-            isRealDataCombined = true;
           }
         }
+
+        // 2. Process News Data (Google Local News coordinates-based, then fallback OnlineKhabar Recent News)
+        if (localNewsRes && localNewsRes.status === "ok" && Array.isArray(localNewsRes.items) && localNewsRes.items.length > 0) {
+          const recentLocalItem = localNewsRes.items.find((item: any) => isDateToday(item.pubDate));
+          if (recentLocalItem) {
+            newsHeadline = recentLocalItem.title;
+            // Clean common Google News publication suffix (e.g. " - BBC News")
+            const suffixIdx = newsHeadline.lastIndexOf(" - ");
+            if (suffixIdx !== -1) {
+              newsHeadline = newsHeadline.substring(0, suffixIdx);
+            }
+            foundNews = true;
+          }
+        }
+
+        if (!foundNews && fallbackNewsRes && fallbackNewsRes.status === "ok" && Array.isArray(fallbackNewsRes.items) && fallbackNewsRes.items.length > 0) {
+          const recentFallbackItem = fallbackNewsRes.items.find((item: any) => isDateToday(item.pubDate));
+          if (recentFallbackItem) {
+            newsHeadline = recentFallbackItem.title;
+            foundNews = true;
+          }
+        }
+
+        // Integrate only if BOTH news and NEPSE data are successfully found as of today
+        if (foundNepse && foundNews) {
+          isRealDataCombined = true;
+        } else {
+          isRealDataCombined = false;
+        }
+
       } catch (err) {
-        console.warn("Real stock and news API fetch failed", err);
+        console.warn("Real stock (NEPSE) and local news API fetch failed", err);
+        isRealDataCombined = false;
       }
 
       const dateString = now.toISOString().split('T')[0];
@@ -1451,9 +1426,9 @@ export default function App() {
                           {tarotAnalysisStep > 3 ? "✓" : tarotAnalysisStep === 3 ? "▶" : "◦"}
                         </span>
                         <div className="space-y-0.5">
-                          <span className="text-zinc-300 uppercase tracking-wider font-semibold">3. Cultural & Market Forces Parsed:</span>
+                          <span className="text-zinc-300 uppercase tracking-wider font-semibold">3. NEPSE & Local News Parsed:</span>
                           {tarotAnalysisStep >= 4 && (
-                            <p className="text-zinc-500 text-[8.5px]">Market details evaluated: {tarotSynthesis.news.marketName || "Global Finance"} index is {tarotSynthesis.news.marketDirection || "neutral"}.</p>
+                            <p className="text-zinc-500 text-[8.5px]">Parsed latest local news and NEPSE Stock Index: {tarotSynthesis.news.marketName || "NEPSE"} index is evaluated as {tarotSynthesis.news.marketDirection || "neutral"}.</p>
                           )}
                         </div>
                       </div>
