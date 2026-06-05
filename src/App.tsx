@@ -77,6 +77,201 @@ const CONSTELLATION_GEOMETRY: Record<string, { stars: Array<{x: number, y: numbe
   }
 };
 
+export interface SunZodiacDetail {
+  name: string;
+  sanskritName: string;
+  symbol: string;
+  startMonth: number;
+  startDate: number;
+  endMonth: number;
+  endDate: number;
+  datesStr: string;
+  ruler: string;
+  element: string;
+  description: string;
+}
+
+export const SUN_ZODIAC_SIGNS: SunZodiacDetail[] = [
+  {
+    name: "Aries",
+    sanskritName: "Mesha",
+    symbol: "♈",
+    startMonth: 3,
+    startDate: 21,
+    endMonth: 4,
+    endDate: 19,
+    datesStr: "Mar 21 – Apr 19",
+    ruler: "Mars",
+    element: "Fire",
+    description: "The spark of high energy, initiation, and pioneering action."
+  },
+  {
+    name: "Taurus",
+    sanskritName: "Vrishabha",
+    symbol: "♉",
+    startMonth: 4,
+    startDate: 20,
+    endMonth: 5,
+    endDate: 20,
+    datesStr: "Apr 20 – May 20",
+    ruler: "Venus",
+    element: "Earth",
+    description: "Methodical perseverance, material focus, and rich sensory consolidation."
+  },
+  {
+    name: "Gemini",
+    sanskritName: "Mithuna",
+    symbol: "♊",
+    startMonth: 5,
+    startDate: 21,
+    endMonth: 6,
+    endDate: 20,
+    datesStr: "May 21 – Jun 20",
+    ruler: "Mercury",
+    element: "Air",
+    description: "Dual curiosity, communication agility, and versatile multi-threaded thought."
+  },
+  {
+    name: "Cancer",
+    sanskritName: "Karka",
+    symbol: "♋",
+    startMonth: 6,
+    startDate: 21,
+    endMonth: 7,
+    endDate: 22,
+    datesStr: "Jun 21 – Jul 22",
+    ruler: "Moon",
+    element: "Water",
+    description: "Emotional sanctuary, intuitive calibration, and deep nurturing structures."
+  },
+  {
+    name: "Leo",
+    sanskritName: "Simha",
+    symbol: "♌",
+    startMonth: 7,
+    startDate: 23,
+    endMonth: 8,
+    endDate: 22,
+    datesStr: "Jul 23 – Aug 22",
+    ruler: "Sun",
+    element: "Fire",
+    description: "Radiant self-expression, sovereignty, and creative vitalizing warmth."
+  },
+  {
+    name: "Virgo",
+    sanskritName: "Kanya",
+    symbol: "♍",
+    startMonth: 8,
+    startDate: 23,
+    endMonth: 9,
+    endDate: 22,
+    datesStr: "Aug 23 – Sep 22",
+    ruler: "Mercury",
+    element: "Earth",
+    description: "Pristine alignment, practical logic, analysis, and refining of systems."
+  },
+  {
+    name: "Libra",
+    sanskritName: "Tula",
+    symbol: "♎",
+    startMonth: 9,
+    startDate: 23,
+    endMonth: 10,
+    endDate: 22,
+    datesStr: "Sep 23 – Oct 22",
+    ruler: "Venus",
+    element: "Air",
+    description: "Harmonious equilibrium, relational balance, and collaborative diplomacy."
+  },
+  {
+    name: "Scorpio",
+    sanskritName: "Vrishchika",
+    symbol: "♏",
+    startMonth: 10,
+    startDate: 23,
+    endMonth: 11,
+    endDate: 21,
+    datesStr: "Oct 23 – Nov 21",
+    ruler: "Mars",
+    element: "Water",
+    description: "Intense alchemical depth, magnetic perception, and regenerative power."
+  },
+  {
+    name: "Sagittarius",
+    sanskritName: "Dhanu",
+    symbol: "♐",
+    startMonth: 11,
+    startDate: 22,
+    endMonth: 12,
+    endDate: 21,
+    datesStr: "Nov 22 – Dec 21",
+    ruler: "Jupiter",
+    element: "Fire",
+    description: "Philosophical expansion, adventurous exploration, and higher wisdom."
+  },
+  {
+    name: "Capricorn",
+    sanskritName: "Makara",
+    symbol: "♑",
+    startMonth: 12,
+    startDate: 22,
+    endMonth: 1,
+    endDate: 19,
+    datesStr: "Dec 22 – Jan 19",
+    ruler: "Saturn",
+    element: "Earth",
+    description: "Pragmatic ambition, structural integrity, and long-term consolidation."
+  },
+  {
+    name: "Aquarius",
+    sanskritName: "Kumbha",
+    symbol: "♒",
+    startMonth: 1,
+    startDate: 20,
+    endMonth: 2,
+    endDate: 18,
+    datesStr: "Jan 20 – Feb 18",
+    ruler: "Saturn",
+    element: "Air",
+    description: "Collective vision, progressive innovation, and humanitarian networks."
+  },
+  {
+    name: "Pisces",
+    sanskritName: "Meena",
+    symbol: "♓",
+    startMonth: 2,
+    startDate: 19,
+    endMonth: 3,
+    endDate: 20,
+    datesStr: "Feb 19 – Mar 20",
+    ruler: "Jupiter",
+    element: "Water",
+    description: "Transcendental unity, spiritual release, and boundless imaginative depth."
+  }
+];
+
+export function getSunZodiacIndex(date: Date): number {
+  const month = date.getMonth() + 1;
+  const day = date.getDate();
+
+  for (let i = 0; i < SUN_ZODIAC_SIGNS.length; i++) {
+    const sign = SUN_ZODIAC_SIGNS[i];
+    if (sign.startMonth === sign.endMonth) {
+      if (month === sign.startMonth && day >= sign.startDate && day <= sign.endDate) {
+        return i;
+      }
+    } else {
+      if (
+        (month === sign.startMonth && day >= sign.startDate) ||
+        (month === sign.endMonth && day <= sign.endDate)
+      ) {
+        return i;
+      }
+    }
+  }
+  return 0;
+}
+
 function getWeatherCondition(code: number): string {
   const codes: Record<number, string> = {
     0: "Clear Sky",
@@ -640,6 +835,7 @@ export default function App() {
 
   const [isMirrorFlipped, setIsMirrorFlipped] = useState(false);
   const [tarotSynthesis, setTarotSynthesis] = useState<any | null>(null);
+  const [isSunZodiacActive, setIsSunZodiacActive] = useState(false);
 
   const [tarotAnalysisStep, setTarotAnalysisStep] = useState<number>(0);
   const [isTarotAnalyzing, setIsTarotAnalyzing] = useState<boolean>(false);
@@ -1141,14 +1337,11 @@ export default function App() {
           </motion.div>
           
           <div className="flex flex-col items-end gap-2">
-             <div className="text-[10px] text-gold border border-gold/40 px-3 py-1 rounded-full uppercase tracking-widest font-medium">
-               EMA STABLE
-             </div>
              {error && <span className="text-[9px] text-red-400 uppercase tracking-tighter italic">{error}</span>}
           </div>
         </header>
         
-        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4 mb-10">
+        <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-7 gap-4 mb-10">
           <div className="bg-white/5 border border-white/5 p-4 rounded-xl backdrop-blur-sm">
             <div className="text-[10px] text-gold uppercase tracking-widest mb-1 flex items-center gap-2">
               <Sun className="w-3 h-3" /> Sunrise
@@ -1180,7 +1373,7 @@ export default function App() {
             <div className="text-xl font-light">{moonData?.moonTransit ? moonData.moonTransit.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : '--:--'}</div>
             <div className="text-[8px] text-dim font-mono uppercase mt-1">High Point</div>
           </div>
-          <div className="bg-white/5 border border-gold/10 p-4 rounded-xl backdrop-blur-sm relative overflow-hidden group shadow-[0_4px_20px_-10px_rgba(212,175,55,0.1)]">
+          <div className="bg-white/5 border border-white/5 p-4 rounded-xl backdrop-blur-sm relative overflow-hidden group shadow-[0_4px_20px_-10px_rgba(212,175,55,0.1)]">
             <div className="absolute top-0 right-0 p-2 opacity-5 group-hover:opacity-10 transition-opacity">
               <RefreshCw className="w-8 h-8 text-gold" />
             </div>
@@ -1190,7 +1383,166 @@ export default function App() {
             <div className="text-xl font-light text-gold">{((moonData?.peakIllumination ?? 0) * 100).toFixed(1)}%</div>
             <div className="text-[9px] text-dim font-mono uppercase mt-1">at {moonData?.peakIlluminationTime.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</div>
           </div>
+
+          {/* Sun Zodiac Interactive Tab/Card */}
+          {(() => {
+            const today = new Date();
+            const currentIndex = getSunZodiacIndex(today);
+            const currentSunSign = SUN_ZODIAC_SIGNS[currentIndex];
+            return (
+              <div 
+                onClick={() => setIsSunZodiacActive(!isSunZodiacActive)}
+                className={`cursor-pointer transition-all duration-300 p-4 rounded-xl backdrop-blur-sm relative overflow-hidden group shadow-[0_4px_20px_-10px_rgba(212,175,55,0.15)] border ${
+                  isSunZodiacActive 
+                    ? 'bg-gold/10 border-gold shadow-[0_0_15px_-3px_rgba(212,175,55,0.2)]' 
+                    : 'bg-white/5 border-white/5 hover:border-gold/35'
+                }`}
+              >
+                <div className="absolute top-0 right-0 p-2 opacity-5 group-hover:opacity-15 transition-opacity">
+                  <Sun className="w-8 h-8 text-gold animate-[spin_40s_linear_infinite]" />
+                </div>
+                <div className={`text-[10px] uppercase tracking-widest mb-1 flex items-center gap-2 ${
+                  isSunZodiacActive ? 'text-gold font-bold' : 'text-gold'
+                }`}>
+                  <Sun className="w-3 h-3 text-gold" /> Sun Zodiac
+                </div>
+                <div className="text-xl font-light text-white flex items-center gap-1.5">
+                  <span className="text-lg">{currentSunSign.symbol}</span>
+                  <span className="font-semibold text-gold text-sm sm:text-[15px] truncate max-w-[90px]">{currentSunSign.name}</span>
+                </div>
+                <div className="text-[8px] text-zinc-400 font-mono mt-1 uppercase flex items-center justify-between">
+                  <span className="truncate max-w-[80px]">{currentSunSign.datesStr}</span>
+                  <span className="text-gold font-medium text-[7.5px] tracking-wider uppercase shrink-0">
+                    {isSunZodiacActive ? '▲ Close' : '▼ View'}
+                  </span>
+                </div>
+              </div>
+            );
+          })()}
         </div>
+
+        {/* Expanded Season Sun Zodiac Position Panel */}
+        <AnimatePresence>
+          {isSunZodiacActive && (
+            <motion.div
+              initial={{ opacity: 0, height: 0, marginTop: 0 }}
+              animate={{ opacity: 1, height: "auto", marginTop: 0 }}
+              exit={{ opacity: 0, height: 0, marginTop: 0 }}
+              transition={{ duration: 0.3 }}
+              className="overflow-hidden mb-10"
+            >
+              {(() => {
+                const today = new Date();
+                const currentIndex = getSunZodiacIndex(today);
+                const pastIndex = (currentIndex - 1 + 12) % 12;
+                const upcomingIndex = (currentIndex + 1) % 12;
+
+                const currentSunSign = SUN_ZODIAC_SIGNS[currentIndex];
+                const pastSunSign = SUN_ZODIAC_SIGNS[pastIndex];
+                const upcomingSunSign = SUN_ZODIAC_SIGNS[upcomingIndex];
+
+                return (
+                  <div className="bg-[#0b0c10] border border-gold/30 rounded-2xl p-6 relative shadow-2xl overflow-hidden">
+                    <div className="absolute inset-0 pointer-events-none bg-[radial-gradient(ellipse_at_top,_var(--color-gold)_0%,transparent_65%)] opacity-5" />
+                    
+                    <div className="text-center mb-6">
+                      <span className="text-[9px] uppercase tracking-[0.25em] text-gold font-mono inline-block">
+                        ☀ Season-Based Sun Zodiac Position Tracker
+                      </span>
+                      <p className="text-[11px] text-dim mt-1.5 leading-relaxed max-w-xl mx-auto">
+                        Calculated by tracking solar longitude relative to the equinoxes, charting the Sun's seasonal passage across the ecliptic gates.
+                      </p>
+                    </div>
+
+                    {/* Up / Left / Right Layout */}
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-6 items-stretch">
+                      
+                      {/* Left: Past Sign */}
+                      <div className="bg-white/[0.01] border border-white/5 rounded-xl p-5 flex flex-col items-center justify-between hover:border-white/20 transition-all duration-300 relative group min-h-[160px]">
+                        <span className="text-[8px] font-mono uppercase tracking-[0.2em] text-white/40 block">
+                          ← Preceding Sign
+                        </span>
+                        
+                        <div className="text-center my-3">
+                          <span className="text-4xl block mb-2 filter grayscale group-hover:grayscale-0 transition-all duration-300">
+                            {pastSunSign.symbol}
+                          </span>
+                          <h4 className="text-sm font-semibold text-white/80 tracking-wide">
+                            {pastSunSign.name} <span className="text-[10px] text-zinc-500 font-normal">({pastSunSign.sanskritName})</span>
+                          </h4>
+                          <span className="text-[10pt] font-mono text-zinc-400 font-medium block mt-1">
+                            {pastSunSign.datesStr}
+                          </span>
+                        </div>
+
+                        <span className="text-[8px] font-mono uppercase tracking-widest text-zinc-500 px-2.5 py-1 bg-white/[0.02] border border-white/10 rounded">
+                          Past Transit
+                        </span>
+                      </div>
+
+                      {/* Center / Up: Current Active Sign */}
+                      <div className="bg-gradient-to-b from-gold/15 to-transparent border border-gold/40 rounded-xl p-6 flex flex-col items-center justify-between text-center relative overflow-hidden shadow-[0_0_25px_rgba(212,175,55,0.06)] min-h-[220px]">
+                        <div className="absolute top-0 inset-x-0 h-[2px] bg-gradient-to-r from-transparent via-gold to-transparent" />
+                        
+                        <span className="text-[8px] tracking-[0.25em] uppercase font-bold text-gold animate-pulse font-mono">
+                          ☀ Currently Active Transit Sign
+                        </span>
+
+                        <div className="my-4">
+                          <span className="text-6xl block mb-3 text-gold filter drop-shadow-[0_0_12px_rgba(212,175,55,0.35)] animate-pulse-gentle">
+                            {currentSunSign.symbol}
+                          </span>
+                          <h3 className="text-xl font-serif italic font-black text-white tracking-widest uppercase">
+                            {currentSunSign.name} <span className="text-xs font-sans not-italic text-white/45">({currentSunSign.sanskritName})</span>
+                          </h3>
+                          <div className="flex gap-2 justify-center mt-2">
+                            <span className="text-[8px] uppercase tracking-wider font-mono bg-white/5 px-2 py-0.5 rounded text-zinc-300">
+                              Ruler: {currentSunSign.ruler}
+                            </span>
+                            <span className="text-[8px] uppercase tracking-wider font-mono bg-white/5 px-2 py-0.5 rounded text-zinc-300">
+                              Element: {currentSunSign.element}
+                            </span>
+                          </div>
+                          <span className="text-xs text-gold font-bold font-mono tracking-widest block mt-3.5 bg-gold/5 border border-gold/15 py-1 px-3.5 rounded-full">
+                            {currentSunSign.datesStr}
+                          </span>
+                        </div>
+
+                        <p className="text-[11px] text-zinc-300 font-light mt-1 leading-relaxed border-t border-white/5 pt-4 max-w-[280px]">
+                          {currentSunSign.description}
+                        </p>
+                      </div>
+
+                      {/* Right: Upcoming Sign */}
+                      <div className="bg-white/[0.01] border border-white/5 rounded-xl p-5 flex flex-col items-center justify-between hover:border-gold/25 transition-all duration-300 relative group min-h-[160px]">
+                        <span className="text-[8px] font-mono uppercase tracking-[0.2em] text-white/40 block">
+                          Upcoming Sign →
+                        </span>
+                        
+                        <div className="text-center my-3">
+                          <span className="text-4xl block mb-2 filter brightness-75 group-hover:brightness-100 transition-all duration-300">
+                            {upcomingSunSign.symbol}
+                          </span>
+                          <h4 className="text-sm font-semibold text-white/80 tracking-wide">
+                            {upcomingSunSign.name} <span className="text-[10px] text-zinc-500 font-normal">({upcomingSunSign.sanskritName})</span>
+                          </h4>
+                          <span className="text-[10pt] font-mono text-zinc-400 font-medium block mt-1">
+                            {upcomingSunSign.datesStr}
+                          </span>
+                        </div>
+
+                        <span className="text-[8px] font-mono uppercase tracking-widest text-gold/90 px-2.5 py-1 bg-gold/5 border border-gold/25 rounded">
+                          Rising Next
+                        </span>
+                      </div>
+
+                    </div>
+                  </div>
+                );
+              })()}
+            </motion.div>
+          )}
+        </AnimatePresence>
 
         <div className="grid grid-cols-1 lg:grid-cols-[280px_1fr_280px] gap-12 flex-1">
           {/* Left Sidebar: Lunar Phases */}
