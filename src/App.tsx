@@ -3,6 +3,7 @@ import { motion, AnimatePresence } from 'motion/react';
 import { Moon, Sun, MapPin, Loader2, Info, RefreshCw, Compass, Sparkles, TrendingUp, CloudSun, Globe, Newspaper, Eye } from 'lucide-react';
 import { getMoonData, MoonData, getMoonZodiacConstellation, ConstellationDetails, ZODIAC_SURROUNDINGS, LUNA_ADVICE, getNepaliDate, NepaliDateDetails, TRANSIT_ONE_WORDS, CONSTELLATIONS } from './utils/astro';
 import { getCurrentMuhurta, Muhurta, MUHURTAS } from './utils/vedic';
+import { CosmicOrrery } from './components/CosmicOrrery';
 
 const ZODIAC_SYMBOLS: Record<string, string> = {
   "Aries": "♈",
@@ -836,6 +837,7 @@ export default function App() {
   const [isMirrorFlipped, setIsMirrorFlipped] = useState(false);
   const [tarotSynthesis, setTarotSynthesis] = useState<any | null>(null);
   const [isSunZodiacActive, setIsSunZodiacActive] = useState(false);
+  const [activeMainTab, setActiveMainTab] = useState<'synergy' | 'orrery'>('synergy');
 
   const [tarotAnalysisStep, setTarotAnalysisStep] = useState<number>(0);
   const [isTarotAnalyzing, setIsTarotAnalyzing] = useState<boolean>(false);
@@ -1577,14 +1579,39 @@ export default function App() {
           </aside>
 
           {/* Main Hero Panel */}
-          <main className="flex flex-col items-center justify-center text-center space-y-8 min-h-[500px]">
+          <main className="flex flex-col items-center justify-start text-center space-y-6 min-h-[500px]">
+            {/* Tabs Selector on Top of Main Panel */}
+            <div className="flex bg-white/[0.03] p-1 rounded-xl border border-white/5 w-full max-w-xs mb-2 shadow-inner">
+              <button
+                onClick={() => setActiveMainTab('synergy')}
+                className={`flex-1 py-1.5 px-3 rounded-lg text-[10px] font-mono uppercase tracking-widest transition-all duration-300 ${
+                  activeMainTab === 'synergy'
+                    ? 'bg-gold/15 text-gold font-bold shadow-md'
+                    : 'text-zinc-500 hover:text-zinc-300'
+                }`}
+              >
+                ☯ Vedic Synergy
+              </button>
+              <button
+                onClick={() => setActiveMainTab('orrery')}
+                className={`flex-1 py-1.5 px-3 rounded-lg text-[10px] font-mono uppercase tracking-widest transition-all duration-300 ${
+                  activeMainTab === 'orrery'
+                    ? 'bg-gold/15 text-gold font-bold shadow-md'
+                    : 'text-zinc-500 hover:text-zinc-300'
+                }`}
+              >
+                🌌 Cosmic Orrery
+              </button>
+            </div>
+
             <AnimatePresence mode="wait">
-              {loading ? null : (
+              {loading ? null : activeMainTab === 'synergy' ? (
                 <motion.div 
-                  key="result"
+                  key="synergy-result"
                   initial={{ opacity: 0, scale: 0.98 }}
                   animate={{ opacity: 1, scale: 1 }}
-                  className="flex flex-col items-center"
+                  exit={{ opacity: 0 }}
+                  className="flex flex-col items-center w-full"
                 >
                   <div className="relative w-64 h-64 border border-white/10 rounded-full flex items-center justify-center mb-6 group">
                     <div className={`absolute inset-0 border border-dashed rounded-full animate-[spin_60s_linear_infinite] ${
@@ -1632,7 +1659,7 @@ export default function App() {
                   }`}>
                     {synergy?.status ?? "Initializing"} <span className="text-3xl not-italic font-sans font-light text-white/40">with {(synergy?.percentage ?? 0).toFixed(2)}%</span>
                   </h2>
-                                    <div className="max-w-xl mx-auto mt-8 space-y-6">
+                  <div className="max-w-xl mx-auto mt-8 space-y-6">
                     <div className="bg-white/5 border border-white/10 rounded-2xl p-6 text-left backdrop-blur-md">
                       <div className="text-[10px] text-dim uppercase tracking-widest mb-3 flex items-center gap-2">
                         <Info className="w-3 h-3 text-gold" />
@@ -1679,6 +1706,16 @@ export default function App() {
                   </div>
 
                   {error && <p className="mt-4 text-xs text-red-400 opacity-50 max-w-xs">{error}</p>}
+                </motion.div>
+              ) : (
+                <motion.div 
+                  key="orrery-result"
+                  initial={{ opacity: 0, scale: 0.98 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  exit={{ opacity: 0 }}
+                  className="flex flex-col items-center w-full"
+                >
+                  <CosmicOrrery />
                 </motion.div>
               )}
             </AnimatePresence>
