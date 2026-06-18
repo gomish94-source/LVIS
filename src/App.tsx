@@ -1818,21 +1818,9 @@ export default function App() {
                   </div>
                   <div className="mt-4 pt-4 border-t border-emerald-500/10 space-y-2.5">
                     <div className="flex justify-between items-center text-[10px]">
-                      <span className="text-emerald-400/60 uppercase tracking-wider font-medium">Impact</span>
-                      <span className="text-white font-mono uppercase font-bold text-[10px] bg-white/5 px-2 py-0.5 rounded border border-white/5 text-right max-w-[140px] truncate">
-                        {TRANSIT_ONE_WORDS[moonTransitUpcoming.constellation.name]?.impact}
-                      </span>
-                    </div>
-                    <div className="flex justify-between items-center text-[10px]">
                       <span className="text-red-400/60 uppercase tracking-wider font-medium">Precaution</span>
-                      <span className="text-red-300 font-mono uppercase font-bold text-[10px] bg-red-500/5 px-2 py-0.5 rounded border border-red-500/10 text-right max-w-[140px] truncate">
+                      <span className="text-red-300 font-mono uppercase font-bold text-[10px] bg-red-500/5 px-2 py-0.5 rounded border border-red-500/10 text-right max-w-[140px] truncate" title={TRANSIT_ONE_WORDS[moonTransitUpcoming.constellation.name]?.precaution}>
                         {TRANSIT_ONE_WORDS[moonTransitUpcoming.constellation.name]?.precaution}
-                      </span>
-                    </div>
-                    <div className="flex justify-between items-center text-[10px]">
-                      <span className="text-emerald-400/60 uppercase tracking-wider font-medium">Task</span>
-                      <span className="text-emerald-300 font-mono uppercase font-bold text-[10px] bg-emerald-500/5 px-2 py-0.5 rounded border border-emerald-500/10 text-right max-w-[140px] truncate">
-                        {TRANSIT_ONE_WORDS[moonTransitUpcoming.constellation.name]?.task}
                       </span>
                     </div>
                   </div>
@@ -1870,27 +1858,13 @@ export default function App() {
                         </div>
                       </div>
 
-                      {/* Aligning Frequencies Panel: One-word Impact, Precaution, and Task */}
-                      <div className="grid grid-cols-3 gap-2.5 mt-8 border-t border-white/5 pt-6">
-                        {/* Impact */}
-                        <div className="bg-purple-950/20 border border-purple-500/10 p-4 rounded-xl text-center shadow-sm hover:bg-purple-950/35 transition-all duration-300 group">
-                          <span className="text-[9px] text-purple-400 font-mono tracking-widest uppercase block font-semibold">Impact</span>
-                          <span className="text-xs sm:text-sm font-bold text-white tracking-wide block mt-1 uppercase">
-                            {TRANSIT_ONE_WORDS[moonTransitPresent.constellation.name]?.impact}
-                          </span>
-                        </div>
+                      {/* Aligning Frequencies Panel: One-word Precaution Only */}
+                      <div className="mt-8 border-t border-white/5 pt-6">
                         {/* Precaution */}
-                        <div className="bg-red-950/20 border border-red-500/10 p-4 rounded-xl text-center shadow-sm hover:bg-red-950/35 transition-all duration-300 group">
-                          <span className="text-[9px] text-red-400 font-mono tracking-widest uppercase block font-semibold">Precaution</span>
-                          <span className="text-xs sm:text-sm font-bold text-red-300 tracking-wide block mt-1 uppercase">
+                        <div className="bg-red-950/20 border border-red-500/10 p-4 rounded-xl text-center shadow-sm hover:bg-red-950/35 transition-all duration-300 group max-w-sm mx-auto">
+                          <span className="text-[10px] text-red-400 font-mono tracking-widest uppercase block font-semibold">Precaution</span>
+                          <span className="text-xs sm:text-sm font-bold text-red-300 tracking-wide block mt-1.5 uppercase">
                             {TRANSIT_ONE_WORDS[moonTransitPresent.constellation.name]?.precaution}
-                          </span>
-                        </div>
-                        {/* Task */}
-                        <div className="bg-emerald-950/20 border border-emerald-500/10 p-4 rounded-xl text-center shadow-sm hover:bg-emerald-950/35 transition-all duration-300 group">
-                          <span className="text-[9px] text-emerald-400 font-mono tracking-widest uppercase block font-semibold">Task</span>
-                          <span className="text-xs sm:text-sm font-bold text-emerald-300 tracking-wide block mt-1 uppercase">
-                            {TRANSIT_ONE_WORDS[moonTransitPresent.constellation.name]?.task}
                           </span>
                         </div>
                       </div>
@@ -1917,21 +1891,9 @@ export default function App() {
                   </div>
                   <div className="mt-4 pt-4 border-t border-white/5 space-y-2.5">
                     <div className="flex justify-between items-center text-[10px]">
-                      <span className="text-white/40 uppercase tracking-wider font-medium">Past Impact</span>
-                      <span className="text-white/60 font-mono uppercase font-semibold text-[10px] bg-white/5 px-2 py-0.5 rounded border border-white/10 text-right max-w-[140px] truncate">
-                        {TRANSIT_ONE_WORDS[moonTransitPast.constellation.name]?.impact}
-                      </span>
-                    </div>
-                    <div className="flex justify-between items-center text-[10px]">
                       <span className="text-white/40 uppercase tracking-wider font-medium">Precaution</span>
-                      <span className="text-white/50 font-mono uppercase font-semibold text-[10px] bg-white/5 px-2 py-0.5 rounded border border-white/10 text-right max-w-[140px] truncate">
+                      <span className="text-white/50 font-mono uppercase font-semibold text-[10px] bg-white/5 px-2 py-0.5 rounded border border-white/10 text-right max-w-[140px] truncate" title={TRANSIT_ONE_WORDS[moonTransitPast.constellation.name]?.precaution}>
                         {TRANSIT_ONE_WORDS[moonTransitPast.constellation.name]?.precaution}
-                      </span>
-                    </div>
-                    <div className="flex justify-between items-center text-[10px]">
-                      <span className="text-white/40 uppercase tracking-wider font-medium">Task</span>
-                      <span className="text-white/60 font-mono uppercase font-semibold text-[10px] bg-white/5 px-2 py-0.5 rounded border border-white/10 text-right max-w-[140px] truncate">
-                        {TRANSIT_ONE_WORDS[moonTransitPast.constellation.name]?.task}
                       </span>
                     </div>
                   </div>
